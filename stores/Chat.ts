@@ -1,0 +1,9 @@
+import { Message } from "./Message";
+
+export interface Chat {
+  id: string;
+  title?: string | undefined;
+  messages: Message[];
+  chosenCharacter?: string | undefined;
+  tokensUsed?: number;
+}
