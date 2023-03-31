@@ -42,7 +42,7 @@ $ yarn build
 $ yarn start
 ```
 
-The navigate on http://localhost:3000
+Then navigate to http://localhost:3000
 
 Congratulations! 🎉 You are now running YakGPT locally on your machine.
 
