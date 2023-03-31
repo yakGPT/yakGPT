@@ -6,6 +6,7 @@ import { persist } from "zustand/middleware";
 import { Chat } from "./Chat";
 import { getChatById, updateChatMessages } from "./utils";
 import { notifications } from "@mantine/notifications";
+import { getModelInfo } from "./Model";
 
 type APIState = "idle" | "loading" | "error";
 
@@ -215,11 +216,15 @@ export const useChatStore = create<ChatState>()(
         }
 
         const updateTokens = (tokensUsed: number) => {
+          const activeModel = get().settingsForm.model;
+          const costPer1kTokens = getModelInfo(activeModel).costPer1kTokens;
           set((state) => ({
             apiState: "idle",
             chats: state.chats.map((c) => {
               if (c.id === chat.id) {
-                c.tokensUsed = tokensUsed;
+                c.tokensUsed = (c.tokensUsed || 0) + tokensUsed;
+                c.costIncurred =
+                  (c.costIncurred || 0) + (tokensUsed / 1000) * costPer1kTokens;
               }
               return c;
             }),

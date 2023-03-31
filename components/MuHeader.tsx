@@ -13,7 +13,7 @@ import {
 import { useMediaQuery } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useChatStore } from "@/stores/ChatStore";
-import { getModelInfo } from "@/stores/Model";
+import { getModelInfo, modelInfos } from "@/stores/Model";
 
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -100,6 +100,8 @@ export default function HeaderMiddle({ children }: any) {
   const addChat = useChatStore((state) => state.addChat);
 
   const isSmall = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+  const isKnownModel = modelInfos[activeModel] !== undefined;
+  const modelInfo = getModelInfo(activeModel);
 
   return (
     <Header height={36} mb={120} sx={{ zIndex: 1002 }}>
@@ -127,11 +129,15 @@ export default function HeaderMiddle({ children }: any) {
                 </MediaQuery>
               </>
             ) : null}
-            <Text size="sm">{getModelInfo(activeModel).displayName}</Text>
-            <Divider size="xs" orientation="vertical" />
-            <Text size="sm">
-              ${(((activeChat?.tokensUsed || 0) / 1000) * 0.002).toFixed(2)}
-            </Text>
+            <Text size="sm">{modelInfo.displayName}</Text>
+            {isKnownModel && (
+              <>
+                <Divider size="xs" orientation="vertical" />
+                <Text size="sm">
+                  ${(activeChat?.costIncurred || 0).toFixed(2)}
+                </Text>
+              </>
+            )}
           </Group>
         </MediaQuery>
 
