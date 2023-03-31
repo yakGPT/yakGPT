@@ -11,14 +11,8 @@ import {
   Tabs,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import {
-  IconBraces,
-  IconMessageCircle,
-  IconPhoto,
-  IconSettings,
-} from "@tabler/icons-react";
+import { IconBraces, IconSettings } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import keyLabels from "./keyLabels";
 
 export default function SettingsModal({ close }: { close: () => void }) {
   const [models, setModels] = useState<string[]>([]);
