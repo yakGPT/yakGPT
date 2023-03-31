@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  yakgpt:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    hostname: yakgpt
+    restart: on-failure
+    volumes:
+      - /etc/localtime:/etc/localtime:ro 
+    ports:
+      - "3000:3000"

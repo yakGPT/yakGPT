@@ -42,6 +42,19 @@ $ yarn build
 $ yarn start
 ```
 
+#### Docker (recommended)
+
+```bash
+docker build -t yakgpt:latest .
+docker run -d --name yakgpt -p 3000:3000 yakgpt:latest
+```
+
+##### Compose:
+
+```bash
+docker-compose up -d
+```
+
 Congratulations! 🎉 You are now running YakGPT locally on your machine.
 
 ## 🔑 API Key Configuration
