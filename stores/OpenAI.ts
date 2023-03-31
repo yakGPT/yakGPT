@@ -122,9 +122,9 @@ export async function streamCompletion(
   errorCallback?: ((res: IncomingMessage, body: string) => void) | undefined
 ) {
   const modelInfo = getModelInfo(params.model);
-  const [submitMessages, outTokens] = truncateMessages(
+  const submitMessages = truncateMessages(
     messages,
-    modelInfo.maxTokens - params.max_tokens,
+    modelInfo.maxTokens,
     params.max_tokens
   );
   console.log(`Sending ${submitMessages.length} messages:`);
@@ -136,7 +136,7 @@ export async function streamCompletion(
   );
 
   const payload = JSON.stringify({
-    messages: messages.map(({ role, content }) => ({ role, content })),
+    messages: submitMessages.map(({ role, content }) => ({ role, content })),
     stream: true,
     ...{
       ...submitParams,

@@ -18,10 +18,16 @@ function estimateTokens(content: string): number {
 // Truncate messages
 export function truncateMessages(
   messages: Message[],
-  maxTokens: number,
-  outTokens: number
-): [Message[], number] {
-  if (messages.length <= 1) return [messages, outTokens];
+  modelMaxTokens: number,
+  userMaxTokens: number
+): Message[] {
+  if (messages.length <= 1) return messages;
+
+  if (!userMaxTokens) {
+    // Try to reserve some room for the model output by default
+    userMaxTokens = 1024;
+  }
+  const targetTokens = modelMaxTokens - userMaxTokens;
 
   // Never remove the system message
   let accumulatedTokens = 0;
@@ -38,12 +44,12 @@ export function truncateMessages(
   for (let i = messages.length - 1; i >= startIdx; i--) {
     const message = messages[i];
     const tokens = estimateTokens(message.content);
-    if (accumulatedTokens + tokens > maxTokens) {
+    if (accumulatedTokens + tokens > targetTokens) {
       break;
     }
     accumulatedTokens += tokens;
     // Insert at position 1
     ret.splice(1, 0, message);
   }
-  return [ret, outTokens];
+  return ret;
 }
