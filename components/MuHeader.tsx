@@ -13,7 +13,7 @@ import {
 import { useMediaQuery } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useChatStore } from "@/stores/ChatStore";
-import { getModelInfo, modelInfos } from "@/stores/Model";
+import { getModelInfo } from "@/stores/Model";
 
 const useStyles = createStyles((theme) => ({
   inner: {
