@@ -31,7 +31,7 @@ You'll need the following tools installed on your computer to run YakGPT locally
 1. Clone the repository:
 
 ```
-$ git clone https://github.com/your-username/YakGPT.git
+$ git clone https://github.com/yakGPT/YakGPT.git
 ```
 
 2. Install dependencies, build the bundle and run the server
@@ -41,6 +41,7 @@ $ yarn
 $ yarn build
 $ yarn start
 ```
+
 
 #### Docker (recommended)
 
@@ -54,6 +55,9 @@ docker run -d --name yakgpt -p 3000:3000 yakgpt:latest
 ```bash
 docker-compose up -d
 ```
+
+The navigate on http://localhost:3000
+
 
 Congratulations! 🎉 You are now running YakGPT locally on your machine.
 
