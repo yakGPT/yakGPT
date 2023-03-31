@@ -61,7 +61,7 @@ const defaultSettings = {
   top_p: 1,
   n: 1,
   stop: "",
-  max_tokens: 1024,
+  max_tokens: 0,
   presence_penalty: 0,
   frequency_penalty: 0,
   logit_bias: "",

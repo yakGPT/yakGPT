@@ -122,7 +122,7 @@ export async function streamCompletion(
   errorCallback?: ((res: IncomingMessage, body: string) => void) | undefined
 ) {
   const modelInfo = getModelInfo(params.model);
-  const submitMessages = truncateMessages(
+  const [submitMessages, outTokens] = truncateMessages(
     messages,
     modelInfo.maxTokens - params.max_tokens,
     params.max_tokens
@@ -141,6 +141,8 @@ export async function streamCompletion(
     ...{
       ...submitParams,
       logit_bias: JSON.parse(params.logit_bias || "{}"),
+      // 0 == unlimited
+      max_tokens: params.max_tokens || undefined,
     },
   });
 

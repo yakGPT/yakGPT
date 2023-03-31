@@ -145,11 +145,15 @@ export default function SettingsModal({ close }: { close: () => void }) {
             />
 
             <Text mt="lg" size="sm">
-              Max Tokens ({form.values.max_tokens})
+              Max Tokens (
+              {form.values.max_tokens === 0
+                ? "Unlimited"
+                : form.values.max_tokens}
+              )
             </Text>
             <Slider
               value={form.values.max_tokens}
-              min={1}
+              min={0}
               max={4000}
               step={1}
               onChange={(value) => form.setFieldValue("max_tokens", value)}
