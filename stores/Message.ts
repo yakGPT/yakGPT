@@ -1,3 +1,7 @@
+import encoder from "@nem035/gpt-3-encoder";
+
+export const countTokens = (text: string) => encoder.encode(text).length;
+
 export interface Message {
   id: string;
   content: string;
@@ -14,15 +18,24 @@ function estimateTokens(content: string): number {
 // Truncate messages
 export function truncateMessages(
   messages: Message[],
-  maxTokens: number = 3600
-): Message[] {
-  if (messages.length <= 1) return messages;
+  maxTokens: number,
+  outTokens: number
+): [Message[], number] {
+  if (messages.length <= 1) return [messages, outTokens];
 
-  let accumulatedTokens = estimateTokens(messages[0].content);
-  const ret = [messages[0]];
+  // Never remove the system message
+  let accumulatedTokens = 0;
+  const ret = [];
+  let startIdx = 0;
 
-  // Keep adding messages from the end of the array until we reach the max tokens
-  for (let i = messages.length - 1; i >= 1; i--) {
+  if (messages[0].role === "system") {
+    accumulatedTokens = estimateTokens(messages[0].content);
+    ret.push(messages[0]);
+    startIdx = 1;
+  }
+
+  // Try to truncate messages as is
+  for (let i = messages.length - 1; i >= startIdx; i--) {
     const message = messages[i];
     const tokens = estimateTokens(message.content);
     if (accumulatedTokens + tokens > maxTokens) {
@@ -32,5 +45,5 @@ export function truncateMessages(
     // Insert at position 1
     ret.splice(1, 0, message);
   }
-  return ret;
+  return [ret, outTokens];
 }
