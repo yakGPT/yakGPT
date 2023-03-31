@@ -275,6 +275,8 @@ export const useChatStore = create<ChatState>()(
               message: message,
               color: "red",
             });
+            // Run abortCurrentRequest to remove the loading indicator
+            get().abortCurrentRequest();
           }
         );
 
