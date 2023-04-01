@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextInput, Checkbox, Button, Group, Box, Loader } from "@mantine/core";
+import { TextInput, Button, Group, Box, Loader } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 
 import { useForm } from "@mantine/form";
@@ -72,7 +72,9 @@ export default function KeyModal({ close }: { close: () => void }) {
           />
 
           <Group position="right" mt="md">
-            <Button type="submit">Save</Button>
+            <Button type="submit" disabled={!form.isDirty("key")}>
+              Save
+            </Button>
             <Button onClick={close} variant="light">
               Cancel
             </Button>
