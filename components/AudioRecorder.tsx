@@ -49,9 +49,12 @@ const AudioRecorder = () => {
     }
   }, []);
 
-  const destroyRecorder = useCallback(() => {
+  const cleanupRecorder = useCallback(() => {
     if (recorderRef.current) {
-      recorderRef.current.stream.getTracks().forEach((i) => i.stop());
+      chunks.current.length = 0;
+      setAudioState("idle");
+      recorderRef.current &&
+        recorderRef.current.stream.getTracks().forEach((i) => i.stop());
       recorderRef.current = null;
     }
   }, []);
@@ -78,18 +81,14 @@ const AudioRecorder = () => {
 
   const onRecordingStop = useCallback(() => {
     console.log("stop, submit=", submitAudioRef.current);
-    const cleanup = () => {
-      chunks.current.length = 0;
-      setAudioState("idle");
-    };
 
     if (submitAudioRef.current) {
       const blob = new Blob(chunks.current, { type: "audio/webm" });
-      sendAudioData(blob).then(cleanup, cleanup);
+      sendAudioData(blob).then(cleanupRecorder, cleanupRecorder);
     } else {
-      cleanup();
+      cleanupRecorder();
     }
-  }, [sendAudioData]);
+  }, [sendAudioData, cleanupRecorder]);
 
   const startRecording = useCallback(async () => {
     console.log("start");
@@ -129,7 +128,6 @@ const AudioRecorder = () => {
       audioState={audioState}
       startRecording={startRecording}
       stopRecording={stopRecording}
-      destroyRecorder={destroyRecorder}
     />
   );
 };

@@ -74,12 +74,10 @@ const PushToTalkButton = ({
   audioState,
   startRecording,
   stopRecording,
-  destroyRecorder,
 }: {
   audioState: string;
   startRecording: () => void;
   stopRecording: (submit?: boolean) => void;
-  destroyRecorder: () => void;
 }) => {
   const { classes, cx, theme } = useStyles();
 
@@ -94,7 +92,6 @@ const PushToTalkButton = ({
           variant="filled"
           onClick={() => {
             stopRecording(false);
-            destroyRecorder();
             setPushToTalkMode(false);
           }}
           sx={{
