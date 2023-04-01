@@ -6,6 +6,7 @@ import {
   useMantineColorScheme,
   Group,
   rem,
+  px,
 } from "@mantine/core";
 import { upperFirst } from "@mantine/hooks";
 import { IconMoon, IconSun } from "@tabler/icons-react";
@@ -60,7 +61,7 @@ export function ThemeToggle() {
         </Text>
 
         <Center className={classes.iconWrapper}>
-          <Icon size="1.05rem" stroke={1.5} />
+          <Icon size={px("1.05rem")} stroke={1.5} />
         </Center>
       </UnstyledButton>
     </Group>

@@ -12,6 +12,7 @@ import {
   Box,
   MediaQuery,
   Burger,
+  px,
 } from "@mantine/core";
 import { upperFirst, useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
@@ -197,7 +198,7 @@ export default function NavbarSimple() {
                 }`,
               }}
             >
-              <IconTrash size="0.8rem" stroke={1.5} />
+              <IconTrash size={px("0.8rem")} stroke={1.5} />
             </ActionIcon>
           )}
         </a>

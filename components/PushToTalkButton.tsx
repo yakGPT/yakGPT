@@ -1,5 +1,5 @@
 import { useChatStore } from "@/stores/ChatStore";
-import { ActionIcon, Button, Loader, rem } from "@mantine/core";
+import { ActionIcon, Button, Loader, px, rem } from "@mantine/core";
 import { createStyles, MantineTheme } from "@mantine/styles";
 import { IconMicrophone, IconMicrophoneOff, IconX } from "@tabler/icons-react";
 
@@ -103,7 +103,7 @@ const PushToTalkButton = ({
             left: rem(-43),
           }}
         >
-          <IconMicrophoneOff size="1.1rem" stroke={1.5} />
+          <IconMicrophoneOff size={px("1.1rem")} stroke={1.5} />
         </ActionIcon>
         {audioState !== "idle" && (
           <ActionIcon
@@ -120,7 +120,7 @@ const PushToTalkButton = ({
               right: rem(-43),
             }}
           >
-            <IconX size="1.1rem" stroke={1.5} />
+            <IconX size={px("1.1rem")} stroke={1.5} />
           </ActionIcon>
         )}
         <Button

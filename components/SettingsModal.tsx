@@ -11,6 +11,7 @@ import {
   Tabs,
   Autocomplete,
   Switch,
+  px,
 } from "@mantine/core";
 import ISO6391 from "iso-639-1";
 import { useForm } from "@mantine/form";
@@ -94,13 +95,22 @@ export default function SettingsModal({ close }: { close: () => void }) {
       >
         <Tabs defaultValue="general">
           <Tabs.List>
-            <Tabs.Tab value="general" icon={<IconSettings size="0.8rem" />}>
+            <Tabs.Tab
+              value="general"
+              icon={<IconSettings size={px("0.8rem")} />}
+            >
               General
             </Tabs.Tab>
-            <Tabs.Tab value="audio" icon={<IconMicrophone size="0.8rem" />}>
+            <Tabs.Tab
+              value="audio"
+              icon={<IconMicrophone size={px("0.8rem")} />}
+            >
               Audio
             </Tabs.Tab>
-            <Tabs.Tab value="advanced" icon={<IconBraces size="0.8rem" />}>
+            <Tabs.Tab
+              value="advanced"
+              icon={<IconBraces size={px("0.8rem")} />}
+            >
               Advanced
             </Tabs.Tab>
           </Tabs.List>

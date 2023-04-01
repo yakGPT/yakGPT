@@ -5,6 +5,7 @@ import {
   createStyles,
   getStylesRef,
   MantineTheme,
+  px,
 } from "@mantine/core";
 import { useChatStore } from "@/stores/ChatStore";
 import NewChat from "./NewChat";
@@ -176,7 +177,7 @@ const ChatDisplay = () => {
             bottom: 100,
           }}
         >
-          <IconChevronsDown size="1.1rem" stroke={1.5} />
+          <IconChevronsDown size={px("1.1rem")} stroke={1.5} />
         </ActionIcon>
       )}
     </div>

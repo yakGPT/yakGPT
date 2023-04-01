@@ -7,13 +7,9 @@ import {
   Textarea,
   rem,
   Group,
+  px,
 } from "@mantine/core";
-import {
-  IconArrowRight,
-  IconMicrophone,
-  IconMicrophoneOff,
-  IconX,
-} from "@tabler/icons-react";
+import { IconArrowRight, IconMicrophone, IconX } from "@tabler/icons-react";
 
 export default function ChatInput() {
   const theme = useMantineTheme();
@@ -65,9 +61,9 @@ export default function ChatInput() {
 
   const icon =
     apiState === "loading" ? (
-      <IconX size="1.1rem" stroke={1.5} />
+      <IconX size={px("1.1rem")} stroke={1.5} />
     ) : (
-      <IconArrowRight size="1.1rem" stroke={1.5} />
+      <IconArrowRight size={px("1.1rem")} stroke={1.5} />
     );
 
   // Whenever editingMessage changes, update the value
@@ -108,7 +104,7 @@ export default function ChatInput() {
           onClick={() => setPushToTalkMode(true)}
           sx={{ pointerEvents: "all" }}
         >
-          <IconMicrophone size="1.1rem" stroke={1.5} />
+          <IconMicrophone size={px("1.1rem")} stroke={1.5} />
         </ActionIcon>
       }
       rightSection={
@@ -126,7 +122,7 @@ export default function ChatInput() {
                 right: rem(7.5 + 5 + 32),
               }}
             >
-              <IconX size="1.1rem" stroke={1.5} />
+              <IconX size={px("1.1rem")} stroke={1.5} />
             </ActionIcon>
           )}
           <ActionIcon

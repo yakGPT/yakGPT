@@ -9,6 +9,7 @@ import {
   Text,
   MediaQuery,
   Divider,
+  px,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
@@ -153,7 +154,7 @@ export default function HeaderMiddle({ children }: any) {
               size="lg"
             >
               <IconPlus
-                size="1.5rem"
+                size={px("1.5rem")}
                 stroke={1.5}
                 color={theme.colors.gray[6]}
               />
