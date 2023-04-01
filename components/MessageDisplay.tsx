@@ -86,13 +86,13 @@ const useStyles = createStyles((theme: MantineTheme) => ({
           ? theme.colors.dark[8]
           : theme.colors.gray[1],
     },
-    "& tr:nth-child(even) td": {
+    "& tr:nth-of-type(even) td": {
       backgroundColor:
         theme.colorScheme === "dark"
           ? theme.colors.dark[7]
           : theme.colors.gray[0],
     },
-    "& tr:nth-child(odd) td": {
+    "& tr:nth-of-type(odd) td": {
       backgroundColor:
         theme.colorScheme === "dark"
           ? theme.colors.dark[6]
