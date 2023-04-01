@@ -134,6 +134,7 @@ export default function NavbarSimple() {
 
   const addChat = useChatStore((state) => state.addChat);
   const deleteChat = useChatStore((state) => state.deleteChat);
+  const clearChats = useChatStore((state) => state.clearChats);
 
   const chats = useChatStore((state) => state.chats);
   const setActiveChat = useChatStore((state) => state.setActiveChat);
@@ -300,6 +301,18 @@ export default function NavbarSimple() {
         </Navbar.Section>
       </MediaQuery>
       <Navbar.Section className={classes.footer}>
+        <a
+            href="#"
+            className={classes.link}
+            onClick={() => {
+              clearChats()
+              addChat()
+            }}
+        >
+          <IconTrash className={classes.linkIcon} stroke={1.5} />
+          <span>Clear Chats</span>
+        </a>
+
         <a
           href="#"
           className={classes.link}
