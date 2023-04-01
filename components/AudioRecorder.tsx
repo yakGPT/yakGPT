@@ -1,8 +1,9 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useChatStore } from "@/stores/ChatStore";
 import { Message } from "@/stores/Message";
 import PushToTalkButton from "./PushToTalkButton";
+import { useTimeout } from "@mantine/hooks";
 
 const workerOptions = {
   WebMOpusEncoderWasmPath:
@@ -56,6 +57,11 @@ const AudioRecorder = () => {
     }
   }, []);
 
+  const { start: startDestroyTimeout, clear: clearDestroyTimeout } = useTimeout(
+    destroyRecorder,
+    30_000
+  );
+
   const sendAudioData = useCallback(
     async (blob: Blob) => {
       console.log("Audio data size:", blob.size / 1000, "KB");
@@ -81,6 +87,7 @@ const AudioRecorder = () => {
     const cleanup = () => {
       chunks.current.length = 0;
       setAudioState("idle");
+      startDestroyTimeout();
     };
 
     if (submitAudioRef.current) {
@@ -89,11 +96,12 @@ const AudioRecorder = () => {
     } else {
       cleanup();
     }
-  }, [sendAudioData]);
+  }, [sendAudioData, startDestroyTimeout]);
 
   const startRecording = useCallback(async () => {
     console.log("start");
     chunks.current.length = 0;
+    clearDestroyTimeout();
 
     if (!recorderRef.current) {
       try {
@@ -118,7 +126,7 @@ const AudioRecorder = () => {
       recorderRef.current.start(100);
       setAudioState("recording");
     }
-  }, [onRecordingDataAvailable, onRecordingStop]);
+  }, [onRecordingDataAvailable, onRecordingStop, clearDestroyTimeout]);
 
   if (!pushToTalkMode) {
     return null;
