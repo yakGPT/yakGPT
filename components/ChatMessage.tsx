@@ -5,6 +5,7 @@ import {
   getStylesRef,
   MantineTheme,
   MediaQuery,
+  px,
 } from "@mantine/core";
 
 import { useChatStore } from "@/stores/ChatStore";
@@ -153,9 +154,9 @@ export default function ChatDisplay({ message }: { message: Message }) {
                   {message.role === "system" ? (
                     <IconSettings />
                   ) : message.role === "assistant" ? (
-                    <AssistantIcon />
+                    <AssistantIcon width={px("1.5rem")} height={px("1.5rem")} />
                   ) : (
-                    <UserIcon />
+                    <UserIcon width={px("1.5rem")} height={px("1.5rem")} />
                   )}
                 </Avatar>
               </div>
