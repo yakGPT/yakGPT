@@ -1,11 +1,8 @@
 import { useState, useCallback, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
 import { useChatStore } from "@/stores/ChatStore";
 import { Message } from "@/stores/Message";
 import PushToTalkButton from "./PushToTalkButton";
-import { notifications } from "@mantine/notifications";
-import { assertIsError } from "@/stores/OpenAI";
 
 const workerOptions = {
   WebMOpusEncoderWasmPath:
@@ -20,11 +17,10 @@ const AudioRecorder = () => {
   const submitAudioRef = useRef<boolean>(true);
 
   const pushMessage = useChatStore((state) => state.pushMessage);
-  const delMessage = useChatStore((state) => state.delMessage);
-  const submitMessage = useChatStore((state) => state.submitMessage);
   const setApiState = useChatStore((state) => state.setApiState);
 
-  const apiKey = useChatStore((state) => state.apiKey);
+  const submitAudio = useChatStore((state) => state.submitAudio);
+
   const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -75,62 +71,9 @@ const AudioRecorder = () => {
 
       console.log("Sending audio data to OpenAI...");
 
-      try {
-        const apiUrl = "https://api.openai.com/v1/audio/transcriptions";
-
-        const formData = new FormData();
-        formData.append("file", blob, "audio.webm");
-        formData.append("model", "whisper-1");
-        formData.append("language", "en");
-
-        const response = await axios.post(apiUrl, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${apiKey}`,
-          },
-        });
-
-        if (response.data.error) {
-          console.error("Error sending audio data:", response.data.error);
-          notifications.show({
-            title: "Error sending audio data",
-            message: response.data.error,
-            color: "red",
-          });
-          return;
-        }
-
-        console.log("Audio data sent successfully:", response.data.text);
-
-        // Empty audio, do nothing
-        if (response.data.text === "") {
-          setApiState("idle");
-          delMessage(newMessage);
-          return;
-        }
-        setApiState("idle");
-
-        submitMessage({
-          id: newMessage.id,
-          content: response.data.text,
-          role: "user",
-        });
-      } catch (err) {
-        assertIsError(err);
-        setApiState("idle");
-        const message = axios.isAxiosError(err)
-          ? err.response?.data?.error?.message
-          : err.message;
-
-        notifications.show({
-          title: "Error sending audio data",
-          message,
-          color: "red",
-        });
-        console.error("Error sending audio data:", err);
-      }
+      await submitAudio(newMessage, blob);
     },
-    [submitMessage, delMessage, pushMessage, apiKey, setApiState]
+    [pushMessage, setApiState, submitAudio]
   );
 
   const onRecordingStop = useCallback(() => {

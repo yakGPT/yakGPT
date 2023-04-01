@@ -7,6 +7,8 @@ import { Chat } from "./Chat";
 import { getChatById, updateChatMessages } from "./utils";
 import { notifications } from "@mantine/notifications";
 import { getModelInfo } from "./Model";
+import { assertIsError } from "@/stores/OpenAI";
+import axios from "axios";
 
 type APIState = "idle" | "loading" | "error";
 
@@ -22,6 +24,9 @@ interface SettingsForm {
   logit_bias: string;
   // non-model stuff
   push_to_talk_key: string;
+  auto_detect_language: boolean;
+  spoken_language: string;
+  spoken_language_code: string;
 }
 
 interface ChatState {
@@ -54,6 +59,7 @@ interface ChatState {
   setPushToTalkMode: (mode: boolean) => void;
   setEditingMessage: (id: Message | undefined) => void;
   regenerateAssistantMessage: (message: Message) => void;
+  submitAudio: (newMessage: Message, audio: Blob) => Promise<void>;
 }
 
 const defaultSettings = {
@@ -66,6 +72,9 @@ const defaultSettings = {
   presence_penalty: 0,
   frequency_penalty: 0,
   logit_bias: "",
+  auto_detect_language: false,
+  spoken_language: "English (en)",
+  spoken_language_code: "en",
   // non-model stuff
   push_to_talk_key: "KeyC",
 };
@@ -348,7 +357,6 @@ export const useChatStore = create<ChatState>()(
         set((state) => ({ settingsForm })),
       abortCurrentRequest: () => {
         const currentAbortController = get().currentAbortController;
-        console.log("aborting current request", currentAbortController);
         if (currentAbortController?.abort) currentAbortController?.abort();
         set((state) => ({
           apiState: "idle",
@@ -369,6 +377,69 @@ export const useChatStore = create<ChatState>()(
         set((state) => ({ pushToTalkMode })),
       setEditingMessage: (editingMessage: Message | undefined) =>
         set((state) => ({ editingMessage })),
+      submitAudio: async (newMessage: Message, blob: Blob) => {
+        const apiUrl = "https://api.openai.com/v1/audio/transcriptions";
+
+        const { apiKey, settingsForm, setApiState, delMessage, submitMessage } =
+          get();
+        const {
+          auto_detect_language: autoDetectLanguage,
+          spoken_language_code: spokenLanguageCode,
+        } = settingsForm;
+
+        try {
+          const formData = new FormData();
+          formData.append("file", blob, "audio.webm");
+          formData.append("model", "whisper-1");
+
+          if (!autoDetectLanguage) {
+            formData.append("language", spokenLanguageCode);
+          }
+          const response = await axios.post(apiUrl, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${apiKey}`,
+            },
+          });
+
+          if (response.data.error) {
+            console.error("Error sending audio data:", response.data.error);
+            notifications.show({
+              title: "Error sending audio data",
+              message: response.data.error,
+              color: "red",
+            });
+            return;
+          }
+
+          // Empty audio, do nothing
+          if (response.data.text === "") {
+            setApiState("idle");
+            delMessage(newMessage);
+            return;
+          }
+          setApiState("idle");
+
+          submitMessage({
+            id: newMessage.id,
+            content: response.data.text,
+            role: "user",
+          });
+        } catch (err) {
+          assertIsError(err);
+          setApiState("idle");
+          const message = axios.isAxiosError(err)
+            ? err.response?.data?.error?.message
+            : err.message;
+
+          notifications.show({
+            title: "Error sending audio data",
+            message,
+            color: "red",
+          });
+          console.error("Error sending audio data:", err);
+        }
+      },
       regenerateAssistantMessage: (message: Message) => {
         const chat = getChatById(get().chats, get().activeChatId);
         if (chat === undefined) {

@@ -9,10 +9,21 @@ import {
   Slider,
   Select,
   Tabs,
+  Autocomplete,
+  Switch,
 } from "@mantine/core";
+import ISO6391 from "iso-639-1";
 import { useForm } from "@mantine/form";
-import { IconBraces, IconSettings } from "@tabler/icons-react";
+import { IconBraces, IconMicrophone, IconSettings } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+
+function getLanguages() {
+  const languageCodes = ISO6391.getAllCodes();
+  return languageCodes.map((code) => ({
+    label: `${ISO6391.getName(code)} (${code})`,
+    value: code,
+  }));
+}
 
 export default function SettingsModal({ close }: { close: () => void }) {
   const [models, setModels] = useState<string[]>([]);
@@ -67,6 +78,12 @@ export default function SettingsModal({ close }: { close: () => void }) {
     },
   });
 
+  const languages = getLanguages();
+  const langDisplayToCode = languages.reduce((acc, cur) => {
+    acc[cur.label] = cur.value;
+    return acc;
+  }, {} as Record<string, string>);
+
   return (
     <Box mx="auto">
       <form
@@ -79,6 +96,9 @@ export default function SettingsModal({ close }: { close: () => void }) {
           <Tabs.List>
             <Tabs.Tab value="general" icon={<IconSettings size="0.8rem" />}>
               General
+            </Tabs.Tab>
+            <Tabs.Tab value="audio" icon={<IconMicrophone size="0.8rem" />}>
+              Audio
             </Tabs.Tab>
             <Tabs.Tab value="advanced" icon={<IconBraces size="0.8rem" />}>
               Advanced
@@ -105,6 +125,34 @@ export default function SettingsModal({ close }: { close: () => void }) {
               step={0.1}
               precision={1}
               onChange={(value) => form.setFieldValue("temperature", value)}
+            />
+          </Tabs.Panel>
+          <Tabs.Panel value="audio" pt="xs">
+            <Switch
+              py="md"
+              checked={form.values.auto_detect_language}
+              label="Auto-detect language"
+              onChange={(event) => {
+                console.log("checked", event.currentTarget.checked);
+                form.setFieldValue(
+                  "auto_detect_language",
+                  event.currentTarget.checked
+                );
+              }}
+            />
+
+            <Autocomplete
+              disabled={form.values.auto_detect_language}
+              label="Spoken language (choosing gives better accuracy)"
+              value={form.values.spoken_language}
+              onChange={(value) => {
+                form.setFieldValue("spoken_language", value!);
+                form.setFieldValue(
+                  "spoken_language_code",
+                  langDisplayToCode[value!]
+                );
+              }}
+              data={getLanguages().map((lang) => lang.label)}
             />
           </Tabs.Panel>
 
