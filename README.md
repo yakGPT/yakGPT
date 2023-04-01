@@ -2,8 +2,6 @@
 
 A simple, locally running ChatGPT UI that makes your text generation faster and chatting even more engaging!
 
-[![yakgpt.com](https://img.shields.io/badge/visit-website-green.svg?style=for-the-badge)](https://yakgpt.vercel.app)
-
 ## Features
 
 - Run locally on browser – no need to install any applications
@@ -13,6 +11,12 @@ A simple, locally running ChatGPT UI that makes your text generation faster and 
 
 - All state stored locally in localStorage – no analytics or external service calls
 - Access on https://yakgpt.vercel.app or run locally!
+
+## Screenshots
+
+| Mobile      | Voice Mode       | Light Theme       | Dark Theme       |
+| ----------- | ----------- | ----------- | ----------- |
+| ![image](https://user-images.githubusercontent.com/129409586/229259007-ec4e0a27-cb5e-42fb-91b1-8e4efde99689.png) | ![image](https://user-images.githubusercontent.com/129409586/229259076-b29fe1e6-78a6-47c5-a330-fa34845a0e5f.png)        | ![image](https://user-images.githubusercontent.com/129409586/229259145-0dd24f32-ea01-47f5-beab-68b80bfb1bb9.png)      | ![image](https://user-images.githubusercontent.com/129409586/229259112-6e7223f8-d92d-49a7-9551-50276bf32089.png)     |
 
 ## 🚀 Getting Started
 
