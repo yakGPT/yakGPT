@@ -392,7 +392,7 @@ export const useChatStore = create<ChatState>()(
           formData.append("file", blob, "audio.webm");
           formData.append("model", "whisper-1");
 
-          if (!autoDetectLanguage) {
+          if (!autoDetectLanguage && spokenLanguageCode) {
             formData.append("language", spokenLanguageCode);
           }
           const response = await axios.post(apiUrl, formData, {
