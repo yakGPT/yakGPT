@@ -50,6 +50,54 @@ const useStyles = createStyles((theme: MantineTheme) => ({
     "& pre": {
       overflowX: "scroll",
     },
+    "& table": {
+      width: "100%",
+      minWidth: "50%",
+      marginBottom: theme.spacing.md,
+      backgroundColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[6]
+          : theme.colors.gray[0],
+      color:
+        theme.colorScheme === "dark"
+          ? theme.colors.gray[0]
+          : theme.colors.dark[1],
+      boxShadow: theme.shadows.sm,
+      borderCollapse: "collapse",
+    },
+    "& th, & td": {
+      padding: theme.spacing.xs,
+      border: `1px solid ${
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[8]
+          : theme.colors.gray[3]
+      }`,
+      textAlign: "left",
+      fontWeight: theme.colorScheme === "dark" ? 300 : 400,
+      color:
+        theme.colorScheme === "dark"
+          ? theme.colors.gray[0]
+          : theme.colors.dark[8],
+    },
+    "& th": {
+      fontWeight: 500,
+      backgroundColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[8]
+          : theme.colors.gray[1],
+    },
+    "& tr:nth-child(even) td": {
+      backgroundColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[7]
+          : theme.colors.gray[0],
+    },
+    "& tr:nth-child(odd) td": {
+      backgroundColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[6]
+          : theme.colors.gray[1],
+    },
   },
   loading: {
     [`p:last-child::after`]: {

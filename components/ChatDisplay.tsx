@@ -154,7 +154,7 @@ const ChatDisplay = () => {
   return (
     <div
       className={classes.container}
-      style={{ paddingBottom: pushToTalkMode ? "10em" : "5em" }}
+      style={{ paddingBottom: pushToTalkMode ? "7em" : "5em" }}
     >
       <div className={classes.chatContainer}>
         <MuHeader />
