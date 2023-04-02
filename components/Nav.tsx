@@ -28,6 +28,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useRef, useState } from "react";
+import ClearChatsButton from "./ClearChatsButton";
 import KeyModal from "./KeyModal";
 import SettingsModal from "./SettingsModal";
 
@@ -301,18 +302,13 @@ export default function NavbarSimple() {
         </Navbar.Section>
       </MediaQuery>
       <Navbar.Section className={classes.footer}>
-        <a
-            href="#"
-            className={classes.link}
-            onClick={(event) => {
-              event.preventDefault()
+        <ClearChatsButton
+            classes={classes}
+            clearHandler={() => {
               clearChats()
               addChat()
             }}
-        >
-          <IconTrash className={classes.linkIcon} stroke={1.5} />
-          <span>Clear Chats</span>
-        </a>
+        />
 
         <a
           href="#"
