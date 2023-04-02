@@ -8,13 +8,16 @@ import Hero from "@/components/Hero";
 import { useChatStore } from "@/stores/ChatStore";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import AudioPlayer from "@/components/AudioPlayer";
+import UIController from "@/components/UIController";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const theme = useMantineTheme();
-
   const apiKey = useChatStore((state) => state.apiKey);
+  const ttsText = useChatStore((state) => state.ttsText);
+
+  console.log("Received TTS Text: ", ttsText);
   const [isHydrated, setIsHydrated] = useState(false);
 
   //Wait till NextJS rehydration completes
@@ -55,10 +58,12 @@ export default function Home() {
       >
         <div style={{ position: "relative", height: "100%" }}>
           {apiKey ? <ChatDisplay /> : <Hero />}
-          {apiKey && <ChatInput />}
+          {apiKey && <UIController />}
+          {/* {apiKey && <ChatInput />} */}
         </div>
       </AppShell>
-      <AudioRecorder />
+      {ttsText && <AudioPlayer text={ttsText} voiceId="21m00Tcm4TlvDq8ikWAM" />}
+      {/* <AudioRecorder /> */}
     </>
   );
 }

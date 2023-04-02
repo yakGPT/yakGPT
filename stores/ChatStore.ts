@@ -11,6 +11,7 @@ import { assertIsError } from "@/stores/OpenAI";
 import axios from "axios";
 
 type APIState = "idle" | "loading" | "error";
+type AudioState = "idle" | "recording" | "transcribing" | "processing";
 
 interface SettingsForm {
   model: string;
@@ -32,6 +33,7 @@ interface SettingsForm {
 interface ChatState {
   apiState: APIState;
   apiKey: string | undefined;
+  apiKey11Labs: string | undefined;
   chats: Chat[];
   activeChatId: string | undefined;
   colorScheme: "light" | "dark";
@@ -40,7 +42,13 @@ interface ChatState {
   defaultSettings: SettingsForm;
   navOpened: boolean;
   pushToTalkMode: boolean;
+  recorderRef: React.MutableRefObject<MediaRecorder | undefined>;
+  submitNextAudio: boolean;
+  audioState: AudioState;
+  audioChunks: BlobPart[];
+  playerMode: boolean;
   editingMessage: Message | undefined;
+  ttsText: string | undefined;
 
   addChat: (title?: string) => void;
   deleteChat: (id: string) => void;
@@ -51,15 +59,22 @@ interface ChatState {
   updateMessage: (message: Message) => void;
   setColorScheme: (scheme: "light" | "dark") => void;
   setApiKey: (key: string) => void;
+  setApiKey11Labs: (key: string) => void;
   setApiState: (state: APIState) => void;
   updateSettingsForm: (settings: ChatState["settingsForm"]) => void;
   abortCurrentRequest: () => void;
   setChosenCharacter: (name: string) => void;
   setNavOpened: (opened: boolean) => void;
   setPushToTalkMode: (mode: boolean) => void;
+  setPlayerMode: (mode: boolean) => void;
   setEditingMessage: (id: Message | undefined) => void;
   regenerateAssistantMessage: (message: Message) => void;
   submitAudio: (newMessage: Message, audio: Blob) => Promise<void>;
+  sendAudioData: (audio: Blob) => Promise<void>;
+  startRecording: () => void;
+  stopRecording: (submit: boolean) => void;
+  destroyRecorder: () => void;
+  setTtsText: (text: string | undefined) => void;
 }
 
 const defaultSettings = {
@@ -84,6 +99,7 @@ const initialChatId = uuidv4();
 const initialState = {
   apiState: "idle" as APIState,
   apiKey: undefined,
+  apiKey11Labs: undefined,
   chats: [
     {
       id: initialChatId,
@@ -96,8 +112,14 @@ const initialState = {
   settingsForm: defaultSettings,
   defaultSettings: defaultSettings,
   navOpened: false,
+  playerMode: false,
   pushToTalkMode: false,
   editingMessage: undefined,
+  recorderRef: { current: undefined },
+  submitNextAudio: true,
+  audioState: "idle" as AudioState,
+  audioChunks: [],
+  ttsText: undefined,
 };
 
 export const useChatStore = create<ChatState>()(
@@ -266,6 +288,9 @@ export const useChatStore = create<ChatState>()(
           (tokensUsed) => {
             set((state) => ({
               apiState: "idle",
+              ttsText: state.chats
+                .find((c) => c.id === chat.id)
+                ?.messages.find((m) => m.id === assistantMsgId)?.content,
               chats: updateChatMessages(state.chats, chat.id, (messages) => {
                 const assistantMessage = messages.find(
                   (m) => m.id === assistantMsgId
@@ -352,6 +377,7 @@ export const useChatStore = create<ChatState>()(
       setColorScheme: (scheme: "light" | "dark") =>
         set((state) => ({ colorScheme: scheme })),
       setApiKey: (key: string) => set((state) => ({ apiKey: key })),
+      setApiKey11Labs: (key: string) => set((state) => ({ apiKey11Labs: key })),
       setApiState: (apiState: APIState) => set((state) => ({ apiState })),
       updateSettingsForm: (settingsForm: ChatState["settingsForm"]) =>
         set((state) => ({ settingsForm })),
@@ -375,8 +401,113 @@ export const useChatStore = create<ChatState>()(
       setNavOpened: (navOpened: boolean) => set((state) => ({ navOpened })),
       setPushToTalkMode: (pushToTalkMode: boolean) =>
         set((state) => ({ pushToTalkMode })),
+      setPlayerMode: (playerMode: boolean) => set((state) => ({ playerMode })),
       setEditingMessage: (editingMessage: Message | undefined) =>
         set((state) => ({ editingMessage })),
+
+      sendAudioData: async (blob: Blob) => {
+        const { audioChunks, pushMessage, setApiState, submitAudio } = get();
+        const newMessage = {
+          id: uuidv4(),
+          content: "",
+          role: "user",
+        } as Message;
+
+        pushMessage(newMessage);
+        setApiState("loading");
+
+        console.log("Sending audio data to OpenAI...");
+
+        await submitAudio(newMessage, blob);
+      },
+      startRecording: async () => {
+        const { audioChunks, recorderRef, submitNextAudio, sendAudioData } =
+          get();
+        console.log("start");
+        set((state) => ({ audioChunks: [] }));
+        // clearDestroyTimeout();
+
+        const onRecordingDataAvailable = (e: BlobEvent) => {
+          console.log("dataavailable", e.data.size);
+          audioChunks.push(e.data);
+        };
+
+        const onRecordingStop = () => {
+          console.log("stop, submit=", submitNextAudio);
+          const cleanup = () => {
+            audioChunks.length = 0;
+            set((state) => ({ audioState: "idle" }));
+            // startDestroyTimeout();
+          };
+
+          if (submitNextAudio) {
+            const blob = new Blob(audioChunks, { type: "audio/webm" });
+
+            sendAudioData(blob).then(cleanup, cleanup);
+          } else {
+            cleanup();
+          }
+        };
+
+        if (!recorderRef.current) {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: true,
+            });
+            let options = { mimeType: "audio/webm" };
+            // @ts-ignore
+
+            const workerOptions = {
+              WebMOpusEncoderWasmPath:
+                "https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm",
+            };
+
+            const recorder = new MediaRecorder(stream, options, workerOptions);
+
+            recorder.addEventListener(
+              "dataavailable",
+              onRecordingDataAvailable
+            );
+            recorder.addEventListener("stop", onRecordingStop);
+
+            recorderRef.current = recorder;
+          } catch (err) {
+            console.error("Error initializing recorder:", err);
+            return;
+          }
+        }
+
+        if (recorderRef.current) {
+          recorderRef.current.start(100);
+          set((state) => ({ audioState: "recording" }));
+        }
+      },
+      stopRecording: async (submit: boolean) => {
+        console.log("Stopping recording... submit=", submit);
+        const { audioChunks, recorderRef, submitNextAudio } = get();
+
+        set((state) => ({ submitNextAudio: submit }));
+
+        if (recorderRef.current) {
+          // Set immediately since the ev handler takes some time
+          if (submit) {
+            set((state) => ({ audioState: "transcribing" }));
+          } else {
+            set((state) => ({ audioState: "idle" }));
+          }
+          if (recorderRef.current.state !== "inactive") {
+            recorderRef.current.stop();
+          }
+        }
+      },
+      destroyRecorder: async () => {
+        const { audioChunks, recorderRef } = get();
+
+        if (recorderRef.current) {
+          recorderRef.current.stream.getTracks().forEach((i) => i.stop());
+          set((state) => ({ recorderRef: { current: undefined } }));
+        }
+      },
       submitAudio: async (newMessage: Message, blob: Blob) => {
         const apiUrl = "https://api.openai.com/v1/audio/transcriptions";
 
@@ -455,6 +586,8 @@ export const useChatStore = create<ChatState>()(
           get().submitMessage(prevMsg);
         }
       },
+      setTtsText: (ttsText: string | undefined) =>
+        set((state) => ({ ttsText })),
     }),
     {
       name: "chat-store-v23",

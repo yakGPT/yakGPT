@@ -5,13 +5,12 @@ import {
   ActionIcon,
   useMantineTheme,
   Textarea,
-  rem,
   Group,
   px,
 } from "@mantine/core";
-import { IconArrowRight, IconMicrophone, IconX } from "@tabler/icons-react";
+import { IconArrowRight, IconPlayerStop, IconX } from "@tabler/icons-react";
 
-export default function ChatInput() {
+export default function ChatInput({ className }: { className?: string }) {
   const theme = useMantineTheme();
   const [value, setValue] = useState("");
 
@@ -19,9 +18,6 @@ export default function ChatInput() {
 
   const apiState = useChatStore((state) => state.apiState);
   const abortRequest = useChatStore((state) => state.abortCurrentRequest);
-
-  const setPushToTalkMode = useChatStore((state) => state.setPushToTalkMode);
-  const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
 
   const editingMessage = useChatStore((state) => state.editingMessage);
   const setEditingMessage = useChatStore((state) => state.setEditingMessage);
@@ -59,12 +55,7 @@ export default function ChatInput() {
     setValue(event.target.value);
   };
 
-  const icon =
-    apiState === "loading" ? (
-      <IconX size={px("1.1rem")} stroke={1.5} />
-    ) : (
-      <IconArrowRight size={px("1.1rem")} stroke={1.5} />
-    );
+  const Icon = apiState === "loading" ? IconPlayerStop : IconArrowRight;
 
   // Whenever editingMessage changes, update the value
   useEffect(() => {
@@ -80,12 +71,12 @@ export default function ChatInput() {
     }
   }, [editingMessage]);
 
-  if (pushToTalkMode) return null;
-
   return (
     <Textarea
+      className={className}
       autosize
       maxRows={5}
+      minRows={2}
       sx={{
         position: "relative",
       }}
@@ -95,31 +86,18 @@ export default function ChatInput() {
       onKeyUp={(e) => e.stopPropagation()}
       onChange={handleChange}
       value={value}
-      icon={
-        <ActionIcon
-          size={32}
-          radius="xl"
-          color={theme.primaryColor}
-          variant="filled"
-          onClick={() => setPushToTalkMode(true)}
-          sx={{ pointerEvents: "all" }}
-        >
-          <IconMicrophone size={px("1.1rem")} stroke={1.5} />
-        </ActionIcon>
-      }
       rightSection={
         <Group>
           {editingMessage && (
             <ActionIcon
               size={32}
-              radius="xl"
               color={"red"}
               variant="filled"
               onClick={() => cancelEdit()}
               sx={{
                 position: "absolute",
-                bottom: rem(7.5),
-                right: rem(7.5 + 5 + 32),
+                bottom: "2px",
+                right: "36px",
               }}
             >
               <IconX size={px("1.1rem")} stroke={1.5} />
@@ -127,13 +105,11 @@ export default function ChatInput() {
           )}
           <ActionIcon
             size={32}
-            radius="xl"
             color={apiState === "loading" ? "red" : theme.primaryColor}
-            variant="filled"
             onClick={() => doSubmit()}
-            sx={{ position: "absolute", bottom: rem(7.5), right: rem(7.5) }}
+            sx={{ position: "absolute", bottom: "2px", right: "2px" }}
           >
-            {icon}
+            <Icon size={px("1.1rem")} stroke={1.5} />
           </ActionIcon>
         </Group>
       }

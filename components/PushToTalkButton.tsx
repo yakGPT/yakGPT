@@ -85,6 +85,7 @@ const PushToTalkButton = ({
 
   const setPushToTalkMode = useChatStore((state) => state.setPushToTalkMode);
 
+  return null;
   return (
     <div className={classes.container}>
       <div className={classes.buttonsContainer}>
