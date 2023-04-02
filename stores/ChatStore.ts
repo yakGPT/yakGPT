@@ -493,7 +493,7 @@ export const useChatStore = create<ChatState>()(
         }
 
         console.log("Starting recording...", recorder);
-        recorder.start(100);
+        recorder.start(1_000);
         set((state) => ({ audioState: "recording" }));
       },
       stopRecording: async (submit: boolean) => {
