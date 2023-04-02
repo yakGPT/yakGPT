@@ -28,6 +28,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useRef, useState } from "react";
+import ClearChatsButton from "./ClearChatsButton";
 import KeyModal from "./KeyModal";
 import SettingsModal from "./SettingsModal";
 
@@ -134,6 +135,7 @@ export default function NavbarSimple() {
 
   const addChat = useChatStore((state) => state.addChat);
   const deleteChat = useChatStore((state) => state.deleteChat);
+  const clearChats = useChatStore((state) => state.clearChats);
 
   const chats = useChatStore((state) => state.chats);
   const setActiveChat = useChatStore((state) => state.setActiveChat);
@@ -300,6 +302,14 @@ export default function NavbarSimple() {
         </Navbar.Section>
       </MediaQuery>
       <Navbar.Section className={classes.footer}>
+        <ClearChatsButton
+            classes={classes}
+            clearHandler={() => {
+              clearChats()
+              addChat()
+            }}
+        />
+
         <a
           href="#"
           className={classes.link}

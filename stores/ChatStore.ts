@@ -45,6 +45,7 @@ interface ChatState {
 
   addChat: (title?: string) => void;
   deleteChat: (id: string) => void;
+  clearChats: () => void;
   setActiveChat: (id: string) => void;
   pushMessage: (message: Message) => void;
   delMessage: (message: Message) => void;
@@ -107,6 +108,7 @@ export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
       ...initialState,
+      clearChats: () => set(() => ({ chats: [], activeChatId: undefined })),
       deleteChat: (id: string) =>
         set((state) => ({
           chats: state.chats.filter((chat) => chat.id !== id),
