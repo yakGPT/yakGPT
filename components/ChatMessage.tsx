@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 
 import { useChatStore } from "@/stores/ChatStore";
-import { IconEdit, IconRepeat, IconSettings } from "@tabler/icons-react";
+import { IconEdit, IconRepeat, IconSettings, IconX } from "@tabler/icons-react";
 import MessageDisplay from "./MessageDisplay";
 
 import UserIcon from "./UserIcon";
@@ -96,10 +96,16 @@ const useStyles = createStyles((theme: MantineTheme) => ({
   messageDisplay: {
     marginLeft: theme.spacing.md,
   },
+  actionIconsWrapper: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginTop: theme.spacing.sm,
+  },
   messageWrapper: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     width: "100%",
   },
   topOfMessage: {
@@ -112,6 +118,7 @@ export default function ChatDisplay({ message }: { message: Message }) {
   const { classes, cx } = useStyles();
 
   const setEditingMessage = useChatStore((state) => state.setEditingMessage);
+  const deleteMessage = useChatStore((state) => state.delMessage);
   const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
   const regenerateAssistantMessage = useChatStore(
     (state) => state.regenerateAssistantMessage
@@ -123,6 +130,10 @@ export default function ChatDisplay({ message }: { message: Message }) {
     } else {
       setEditingMessage(message);
     }
+  };
+
+  const handleDeleteMessage = (message: Message) => {
+    deleteMessage(message);
   };
 
   return (
@@ -167,15 +178,24 @@ export default function ChatDisplay({ message }: { message: Message }) {
               className={classes.messageDisplay}
             />
           </div>
-          {!(message.role !== "assistant" && pushToTalkMode) && (
+          <div className={classes.actionIconsWrapper}>
+            {!(message.role !== "assistant" && pushToTalkMode) && (
+              <ActionIcon
+                className={cx(classes.actionIcon, classes.topOfMessage)}
+                onClick={() => handleMainAction(message)}
+                color="gray"
+              >
+                {message.role === "assistant" ? <IconRepeat /> : <IconEdit />}
+              </ActionIcon>
+            )}
             <ActionIcon
               className={cx(classes.actionIcon, classes.topOfMessage)}
-              onClick={() => handleMainAction(message)}
+              onClick={() => handleDeleteMessage(message)}
               color="gray"
             >
-              {message.role === "assistant" ? <IconRepeat /> : <IconEdit />}
+              <IconX />
             </ActionIcon>
-          )}
+          </div>
         </div>
       </div>
     </div>
