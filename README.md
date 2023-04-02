@@ -54,7 +54,7 @@ Congratulations! 🎉 You are now running YakGPT locally on your machine.
 
 To utilize YakGPT, you'll need to acquire an API key for OpenAI. The app should prompt you to insert you key.
 
-### Add to .env.local
+### Add to .env.local(⚠️ Local use only)
 
 If you want the key to persist across app builds, you can add it to the .env.local.
 
