@@ -13,6 +13,8 @@ import axios from "axios";
 type APIState = "idle" | "loading" | "error";
 type AudioState = "idle" | "recording" | "transcribing" | "processing";
 
+const excludeFromState = ["currentAbortController", "recorder"];
+
 interface SettingsForm {
   model: string;
   temperature: number;
@@ -42,7 +44,7 @@ interface ChatState {
   defaultSettings: SettingsForm;
   navOpened: boolean;
   pushToTalkMode: boolean;
-  recorderRef: React.MutableRefObject<MediaRecorder | undefined>;
+  recorder: MediaRecorder | undefined;
   submitNextAudio: boolean;
   audioState: AudioState;
   audioChunks: BlobPart[];
@@ -115,7 +117,7 @@ const initialState = {
   playerMode: false,
   pushToTalkMode: false,
   editingMessage: undefined,
-  recorderRef: { current: undefined },
+  recorder: undefined,
   submitNextAudio: true,
   audioState: "idle" as AudioState,
   audioChunks: [],
@@ -416,32 +418,37 @@ export const useChatStore = create<ChatState>()(
         pushMessage(newMessage);
         setApiState("loading");
 
-        console.log("Sending audio data to OpenAI...");
+        console.log("Sending audio data to OpenAI...", audioChunks.length);
 
         await submitAudio(newMessage, blob);
       },
       startRecording: async () => {
-        const { audioChunks, recorderRef, submitNextAudio, sendAudioData } =
-          get();
+        const { audioChunks, sendAudioData } = get();
+        let recorder = get().recorder;
         console.log("start");
         set((state) => ({ audioChunks: [] }));
         // clearDestroyTimeout();
 
         const onRecordingDataAvailable = (e: BlobEvent) => {
           console.log("dataavailable", e.data.size);
-          audioChunks.push(e.data);
+          // audioChunks.push(e.data);
+          // Update the audio chunks in the state with e.data
+          set((state) => ({ audioChunks: [...state.audioChunks, e.data] }));
         };
 
         const onRecordingStop = () => {
+          const submitNextAudio = get().submitNextAudio;
           console.log("stop, submit=", submitNextAudio);
           const cleanup = () => {
-            audioChunks.length = 0;
-            set((state) => ({ audioState: "idle" }));
+            set((state) => ({
+              audioState: "idle",
+              audioChunks: [],
+            }));
             // startDestroyTimeout();
           };
 
           if (submitNextAudio) {
-            const blob = new Blob(audioChunks, { type: "audio/webm" });
+            const blob = new Blob(get().audioChunks, { type: "audio/webm" });
 
             sendAudioData(blob).then(cleanup, cleanup);
           } else {
@@ -449,20 +456,20 @@ export const useChatStore = create<ChatState>()(
           }
         };
 
-        if (!recorderRef.current) {
+        if (!recorder) {
           try {
             const stream = await navigator.mediaDevices.getUserMedia({
               audio: true,
             });
             let options = { mimeType: "audio/webm" };
-            // @ts-ignore
 
             const workerOptions = {
               WebMOpusEncoderWasmPath:
                 "https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm",
             };
 
-            const recorder = new MediaRecorder(stream, options, workerOptions);
+            // @ts-ignore
+            recorder = new MediaRecorder(stream, options, workerOptions);
 
             recorder.addEventListener(
               "dataavailable",
@@ -470,42 +477,41 @@ export const useChatStore = create<ChatState>()(
             );
             recorder.addEventListener("stop", onRecordingStop);
 
-            recorderRef.current = recorder;
+            set((state) => ({ recorder }));
           } catch (err) {
             console.error("Error initializing recorder:", err);
             return;
           }
         }
 
-        if (recorderRef.current) {
-          recorderRef.current.start(100);
-          set((state) => ({ audioState: "recording" }));
-        }
+        console.log("Starting recording...", recorder);
+        recorder.start(100);
+        set((state) => ({ audioState: "recording" }));
       },
       stopRecording: async (submit: boolean) => {
         console.log("Stopping recording... submit=", submit);
-        const { audioChunks, recorderRef, submitNextAudio } = get();
+        const { audioChunks, recorder, submitNextAudio } = get();
 
         set((state) => ({ submitNextAudio: submit }));
 
-        if (recorderRef.current) {
+        if (recorder) {
           // Set immediately since the ev handler takes some time
           if (submit) {
             set((state) => ({ audioState: "transcribing" }));
           } else {
             set((state) => ({ audioState: "idle" }));
           }
-          if (recorderRef.current.state !== "inactive") {
-            recorderRef.current.stop();
+          if (recorder.state !== "inactive") {
+            recorder.stop();
           }
         }
       },
       destroyRecorder: async () => {
-        const { audioChunks, recorderRef } = get();
+        const { audioChunks, recorder } = get();
 
-        if (recorderRef.current) {
-          recorderRef.current.stream.getTracks().forEach((i) => i.stop());
-          set((state) => ({ recorderRef: { current: undefined } }));
+        if (recorder) {
+          recorder.stream.getTracks().forEach((i) => i.stop());
+          set((state) => ({ recorder: undefined }));
         }
       },
       submitAudio: async (newMessage: Message, blob: Blob) => {
@@ -591,7 +597,12 @@ export const useChatStore = create<ChatState>()(
     }),
     {
       name: "chat-store-v23",
-      partialize: (state) => state,
+      partialize: (state) =>
+        Object.fromEntries(
+          Object.entries(state).filter(
+            ([key]) => !excludeFromState.includes(key)
+          )
+        ),
     }
   )
 );

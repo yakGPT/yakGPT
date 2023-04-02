@@ -13,35 +13,20 @@ const AudioStreamPlayer: React.FC<AudioStreamPlayerProps> = ({
   voiceId,
 }) => {
   const audioRef = useRef(new Audio());
-  const intervalRef = useRef<ReturnType<typeof setTimeout>>();
   const apiKey11Labs = useChatStore((state) => state.apiKey11Labs);
 
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   const setIsPlaying = usePlayerStore((state) => state.setIsPlaying);
-  const trackProgress = usePlayerStore((state) => state.trackProgress);
-  const setTrackProgress = usePlayerStore((state) => state.setTrackProgress);
 
   const { duration } = audioRef.current;
 
   useEffect(() => {
-    const startTimer = () => {
-      // Clear any timers already running
-      clearInterval(intervalRef.current);
-
-      intervalRef.current = setInterval(() => {
-        setTrackProgress(audioRef.current.currentTime);
-        console.log("trackProgress", trackProgress, "duration", duration);
-      }, 400);
-    };
-
     if (isPlaying) {
       audioRef.current.play();
-      startTimer();
     } else {
-      clearInterval(intervalRef.current);
       audioRef.current.pause();
     }
-  }, [isPlaying, duration, trackProgress]);
+  }, [isPlaying, duration]);
 
   useEffect(() => {
     const fetchAndPlayAudioStream = async () => {
