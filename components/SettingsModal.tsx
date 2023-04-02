@@ -136,6 +136,14 @@ export default function SettingsModal({ close }: { close: () => void }) {
               precision={1}
               onChange={(value) => form.setFieldValue("temperature", value)}
             />
+            <Switch
+              mt="xl"
+              checked={form.values.auto_title}
+              label="Automatically use model to find chat title"
+              onChange={(event) =>
+                form.setFieldValue("auto_title", event.currentTarget.checked)
+              }
+            />
           </Tabs.Panel>
           <Tabs.Panel value="audio" pt="xs">
             <Switch

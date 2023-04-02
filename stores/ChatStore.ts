@@ -27,6 +27,7 @@ interface SettingsForm {
   auto_detect_language: boolean;
   spoken_language: string;
   spoken_language_code: string;
+  auto_title: boolean;
 }
 
 interface ChatState {
@@ -75,6 +76,7 @@ const defaultSettings = {
   auto_detect_language: false,
   spoken_language: "English (en)",
   spoken_language_code: "en",
+  auto_title: true,
   // non-model stuff
   push_to_talk_key: "KeyC",
 };
@@ -277,7 +279,9 @@ export const useChatStore = create<ChatState>()(
               }),
             }));
             updateTokens(tokensUsed);
-            findChatTitle();
+            if (get().settingsForm.auto_title) {
+              findChatTitle();
+            }
           },
           (errorRes, errorBody) => {
             let message = errorBody;
