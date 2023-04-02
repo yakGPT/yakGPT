@@ -304,7 +304,8 @@ export default function NavbarSimple() {
         <a
             href="#"
             className={classes.link}
-            onClick={() => {
+            onClick={(event) => {
+              event.preventDefault()
               clearChats()
               addChat()
             }}
