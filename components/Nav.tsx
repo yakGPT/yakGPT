@@ -182,7 +182,7 @@ export default function NavbarSimple() {
         </Box>
       </a>
       {chat.id === activeChatId && (
-        <Group>
+        <>
           <Tooltip label="Delete" withArrow position="right">
             <a
               href="#"
@@ -236,7 +236,7 @@ export default function NavbarSimple() {
               </ActionIcon>
             </a>
           </Tooltip>
-        </Group>
+        </>
       )}
     </Group>
   ));
