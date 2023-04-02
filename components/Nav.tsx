@@ -1,29 +1,33 @@
+import { useChatStore } from "@/stores/ChatStore";
 import {
-  createStyles,
-  Navbar,
-  Group,
-  getStylesRef,
-  rem,
-  Tooltip,
   ActionIcon,
-  Text,
-  Modal,
-  useMantineColorScheme,
   Box,
-  MediaQuery,
   Burger,
+  Group,
+  MediaQuery,
+  Modal,
+  Navbar,
+  Text,
+  TextInput,
+  Tooltip,
+  createStyles,
+  getStylesRef,
   px,
+  rem,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { upperFirst, useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
-  IconPlus,
-  IconTrash,
-  IconSettings,
-  IconMoon,
-  IconSun,
+  IconArrowRight,
+  IconEdit,
   IconKey,
+  IconMoon,
+  IconPlus,
+  IconSettings,
+  IconSun,
+  IconTrash,
 } from "@tabler/icons-react";
-import { useChatStore } from "@/stores/ChatStore";
+import { useRef, useState } from "react";
 import KeyModal from "./KeyModal";
 import SettingsModal from "./SettingsModal";
 
@@ -125,6 +129,8 @@ export default function NavbarSimple() {
     openedSettingsModal,
     { open: openSettingsModal, close: closeSettingsModal },
   ] = useDisclosure(false);
+  const [openedTitleModal, { open: openTitleModal, close: closeTitleModal }] =
+    useDisclosure(false);
 
   const addChat = useChatStore((state) => state.addChat);
   const deleteChat = useChatStore((state) => state.deleteChat);
@@ -132,9 +138,12 @@ export default function NavbarSimple() {
   const chats = useChatStore((state) => state.chats);
   const setActiveChat = useChatStore((state) => state.setActiveChat);
   const activeChatId = useChatStore((state) => state.activeChatId);
+  const updateChat = useChatStore((state) => state.updateChat);
 
   const navOpened = useChatStore((state) => state.navOpened);
   const setNavOpened = useChatStore((state) => state.setNavOpened);
+
+  const [editedTitle, setEditedTitle] = useState("");
 
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const Icon = colorScheme === "dark" ? IconSun : IconMoon;
@@ -172,41 +181,75 @@ export default function NavbarSimple() {
           </Text>
         </Box>
       </a>
-      <Tooltip label="Delete" withArrow position="right">
-        <a
-          href="#"
-          onClick={(event) => {
-            event.preventDefault();
-            deleteChat(chat.id);
-            // If there are no more chats, create one
-            if (chats.length === 1) {
-              addChat();
-            }
-          }}
-          style={{
-            position: "absolute",
-            right: -5,
-          }}
-        >
-          {chat.id === activeChatId && (
-            <ActionIcon
-              variant="default"
-              size={18}
-              sx={{
-                boxShadow: `8px 0 16px 20px ${
-                  theme.colorScheme === "dark" ? theme.colors.dark[7] : "white"
-                }`,
+      {chat.id === activeChatId && (
+        <Group>
+          <Tooltip label="Delete" withArrow position="right">
+            <a
+              href="#"
+              onClick={(event) => {
+                event.preventDefault();
+                deleteChat(chat.id);
+                // If there are no more chats, create one
+                if (chats.length === 1) {
+                  addChat();
+                }
+              }}
+              style={{
+                position: "absolute",
+                right: -5,
               }}
             >
-              <IconTrash size={px("0.8rem")} stroke={1.5} />
-            </ActionIcon>
-          )}
-        </a>
-      </Tooltip>
+              <ActionIcon
+                variant="default"
+                size={18}
+                sx={{
+                  boxShadow: `8px 0 16px 20px ${
+                    theme.colorScheme === "dark"
+                      ? theme.colors.dark[7]
+                      : "white"
+                  }`,
+                }}
+              >
+                <IconTrash size={px("0.8rem")} stroke={1.5} />
+              </ActionIcon>
+            </a>
+          </Tooltip>
+          <Tooltip label="Edit" withArrow position="right">
+            <a
+              href="#"
+              onClick={(event) => {
+                event.preventDefault();
+                openTitleModal();
+                if (isSmall) setNavOpened(false);
+                setEditedTitle(chat.title!);
+                setTimeout(() => {
+                  editTitleInputRef.current?.select();
+                }, 100);
+              }}
+              style={{
+                position: "absolute",
+                right: 15,
+              }}
+            >
+              <ActionIcon variant="default" size={18}>
+                <IconEdit size={px("0.8rem")} stroke={1.5} />
+              </ActionIcon>
+            </a>
+          </Tooltip>
+        </Group>
+      )}
     </Group>
   ));
 
   links.reverse();
+
+  const submitEditedTitle = () => {
+    if (editedTitle.trim()) {
+      updateChat({ id: activeChatId, title: editedTitle });
+    }
+    closeTitleModal();
+  };
+  const editTitleInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Navbar
@@ -309,6 +352,28 @@ export default function NavbarSimple() {
           <span>Settings</span>
         </a>
       </Navbar.Section>
+      <Modal
+        opened={openedTitleModal}
+        onClose={closeTitleModal}
+        title="Set Chat Title"
+      >
+        <TextInput
+          ref={editTitleInputRef}
+          type="text"
+          value={editedTitle}
+          onChange={(e) => setEditedTitle(e.target.value)}
+          rightSection={
+            <ActionIcon onClick={() => submitEditedTitle()}>
+              <IconArrowRight size={px("1.2rem")} stroke={1.5} />
+            </ActionIcon>
+          }
+          onKeyPress={(event) => {
+            if (event.key === "Enter") {
+              submitEditedTitle();
+            }
+          }}
+        />
+      </Modal>
     </Navbar>
   );
 }

@@ -55,6 +55,7 @@ interface ChatState {
   setApiState: (state: APIState) => void;
   updateSettingsForm: (settings: ChatState["settingsForm"]) => void;
   abortCurrentRequest: () => void;
+  updateChat: (chat: Partial<Chat>) => void;
   setChosenCharacter: (name: string) => void;
   setNavOpened: (opened: boolean) => void;
   setPushToTalkMode: (mode: boolean) => void;
@@ -367,6 +368,15 @@ export const useChatStore = create<ChatState>()(
           currentAbortController: undefined,
         }));
       },
+      updateChat: (options) =>
+        set((state) => ({
+          chats: state.chats.map((c) => {
+            if (c.id === options.id) {
+              return { ...c, ...options };
+            }
+            return c;
+          }),
+        })),
       setChosenCharacter: (name: string) =>
         set((state) => ({
           chats: state.chats.map((c) => {
