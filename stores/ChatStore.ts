@@ -13,6 +13,9 @@ import axios from "axios";
 type APIState = "idle" | "loading" | "error";
 type AudioState = "idle" | "recording" | "transcribing" | "processing";
 
+// @ts-ignore
+MediaRecorder = OpusMediaRecorder;
+
 const excludeFromState = [
   "currentAbortController",
   "recorder",
