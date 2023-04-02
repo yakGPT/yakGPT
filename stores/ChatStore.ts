@@ -83,7 +83,7 @@ const initialChatId = uuidv4();
 
 const initialState = {
   apiState: "idle" as APIState,
-  apiKey: undefined,
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || undefined,
   chats: [
     {
       id: initialChatId,
