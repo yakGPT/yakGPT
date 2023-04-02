@@ -1,12 +1,10 @@
 import Head from "next/head";
 import { Inter } from "next/font/google";
 import Nav from "@/components/Nav";
-import { AppShell, useMantineTheme } from "@mantine/core";
+import { AppShell } from "@mantine/core";
 import ChatDisplay from "@/components/ChatDisplay";
-import ChatInput from "@/components/ChatInput";
 import Hero from "@/components/Hero";
 import { useChatStore } from "@/stores/ChatStore";
-import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import AudioPlayer from "@/components/AudioPlayer";
 import UIController from "@/components/UIController";
@@ -28,10 +26,6 @@ export default function Home() {
   if (!isHydrated) {
     return <div>Loading...</div>;
   }
-
-  const AudioRecorder = dynamic(() => import("@/components/AudioRecorder"), {
-    ssr: false,
-  });
 
   return (
     <>
@@ -63,7 +57,6 @@ export default function Home() {
         </div>
       </AppShell>
       {ttsText && <AudioPlayer text={ttsText} voiceId="21m00Tcm4TlvDq8ikWAM" />}
-      {/* <AudioRecorder /> */}
     </>
   );
 }

@@ -13,9 +13,6 @@ import axios from "axios";
 type APIState = "idle" | "loading" | "error";
 type AudioState = "idle" | "recording" | "transcribing" | "processing";
 
-// @ts-ignore
-MediaRecorder = OpusMediaRecorder;
-
 const excludeFromState = [
   "currentAbortController",
   "recorder",
@@ -480,7 +477,11 @@ export const useChatStore = create<ChatState>()(
             };
 
             // @ts-ignore
-            recorder = new MediaRecorder(stream, options, workerOptions);
+            recorder = new window.OpusMediaRecorder(
+              stream,
+              options,
+              workerOptions
+            ) as MediaRecorder;
 
             recorder.addEventListener(
               "dataavailable",
