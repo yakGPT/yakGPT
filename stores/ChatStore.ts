@@ -13,7 +13,11 @@ import axios from "axios";
 type APIState = "idle" | "loading" | "error";
 type AudioState = "idle" | "recording" | "transcribing" | "processing";
 
-const excludeFromState = ["currentAbortController", "recorder"];
+const excludeFromState = [
+  "currentAbortController",
+  "recorder",
+  "recorderTimeout",
+];
 
 interface SettingsForm {
   model: string;
@@ -45,6 +49,7 @@ interface ChatState {
   navOpened: boolean;
   pushToTalkMode: boolean;
   recorder: MediaRecorder | undefined;
+  recorderTimeout: ReturnType<typeof setTimeout> | undefined;
   submitNextAudio: boolean;
   audioState: AudioState;
   audioChunks: BlobPart[];
@@ -118,6 +123,7 @@ const initialState = {
   pushToTalkMode: false,
   editingMessage: undefined,
   recorder: undefined,
+  recorderTimeout: undefined,
   submitNextAudio: true,
   audioState: "idle" as AudioState,
   audioChunks: [],
@@ -423,16 +429,14 @@ export const useChatStore = create<ChatState>()(
         await submitAudio(newMessage, blob);
       },
       startRecording: async () => {
-        const { audioChunks, sendAudioData } = get();
+        const { audioChunks, sendAudioData, destroyRecorder } = get();
         let recorder = get().recorder;
         console.log("start");
         set((state) => ({ audioChunks: [] }));
-        // clearDestroyTimeout();
+        clearTimeout(get().recorderTimeout);
 
         const onRecordingDataAvailable = (e: BlobEvent) => {
           console.log("dataavailable", e.data.size);
-          // audioChunks.push(e.data);
-          // Update the audio chunks in the state with e.data
           set((state) => ({ audioChunks: [...state.audioChunks, e.data] }));
         };
 
@@ -444,7 +448,11 @@ export const useChatStore = create<ChatState>()(
               audioState: "idle",
               audioChunks: [],
             }));
-            // startDestroyTimeout();
+            set((state) => ({
+              recorderTimeout: setTimeout(() => {
+                destroyRecorder();
+              }, 30_000),
+            }));
           };
 
           if (submitNextAudio) {
