@@ -33,7 +33,7 @@ export function APIPanel({
   initialKey: string | undefined;
   setKeyFun: (key: string) => void;
   descriptionAboveInput: string;
-  descriptionBelowInput: string;
+  descriptionBelowInput: React.ReactNode;
   validateKey: (key: string) => Promise<boolean>;
   closeModal: () => void;
 }) {
@@ -91,7 +91,7 @@ export function APIPanel({
           value={apiKey}
           onChange={handleChange}
         />
-        <p>{descriptionBelowInput}</p>
+        {descriptionBelowInput}
         <Group position="right" mt="md">
           <Button type="submit" disabled={initialKey === apiKey}>
             Save
@@ -137,7 +137,18 @@ export default function KeyModal({ close }: { close: () => void }) {
               initialKey={apiKeyOpenAI}
               setKeyFun={setApiKeyOpenAI}
               descriptionAboveInput="You need an OpenAI API Key. Your API Key is stored locally on your browser and never sent anywhere else."
-              descriptionBelowInput="→ Get your API key from Open AI dashboard."
+              descriptionBelowInput={
+                <p>
+                  → Get your API key from the{" "}
+                  <a
+                    target="_blank"
+                    href="https://platform.openai.com/account/api-keys"
+                  >
+                    OpenAI dashboard
+                  </a>
+                  .
+                </p>
+              }
               validateKey={testKeyOpenAI}
               closeModal={close}
             />
@@ -147,8 +158,19 @@ export default function KeyModal({ close }: { close: () => void }) {
               name="Enter Your Eleven Labs API Key"
               initialKey={apiKey11Labs}
               setKeyFun={setApiKey11Labs}
-              descriptionAboveInput="If you want Eleven Labs TTS, you will need an Eleven Labs API Key. Your API Key is stored locally on your browser and never sent anywhere else."
-              descriptionBelowInput="→ Get your API key from your Eleven Labs profile."
+              descriptionAboveInput="If you'd like to use TTS via Eleven Labs, you will need an Eleven Labs API Key. Your API Key is stored locally on your browser and never sent anywhere else."
+              descriptionBelowInput={
+                <p>
+                  → Get your API key from your{" "}
+                  <a
+                    target="_blank"
+                    href="https://beta.elevenlabs.io/speech-synthesis"
+                  >
+                    ElevenLabs profile
+                  </a>
+                  .
+                </p>
+              }
               validateKey={testKey11Labs}
               closeModal={close}
             />
