@@ -5,9 +5,9 @@ import {
   IconMicrophoneOff,
   IconX,
   IconPlayerPlay,
-  IconHeadphones,
-  IconHeadphonesOff,
   IconPlayerPause,
+  IconVolumeOff,
+  IconVolume,
 } from "@tabler/icons-react";
 import ChatTextInput from "./ChatTextInput";
 import { usePlayerStore } from "@/stores/PlayerStore";
@@ -19,13 +19,19 @@ const styles = createStyles((theme: MantineTheme) => ({
     position: "fixed",
     bottom: 0,
     left: 0,
+    [`@media (min-width: ${theme.breakpoints.sm})`]: {
+      left: 200,
+    },
+    [`@media (min-width: ${theme.breakpoints.md})`]: {
+      left: 250,
+    },
     right: 0,
     zIndex: 1,
     maxWidth: 820,
     margin: "0 auto",
-    paddingBottom: 11,
-    paddingLeft: 64,
-    paddingRight: 64,
+    paddingBottom: 16,
+    paddingLeft: 8,
+    paddingRight: 8,
   },
   playerControls: {
     display: "flex",
@@ -58,7 +64,7 @@ const PlayerControls = () => {
   const setPlayerMode = useChatStore((state) => state.setPlayerMode);
   const playerMode = useChatStore((state) => state.playerMode);
 
-  const PlayerToggleIcon = playerMode ? IconHeadphonesOff : IconHeadphones;
+  const PlayerToggleIcon = playerMode ? IconVolumeOff : IconVolume;
 
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   const setIsPlaying = usePlayerStore((state) => state.setIsPlaying);
@@ -67,19 +73,19 @@ const PlayerControls = () => {
 
   return (
     <div className={classes.playerControls}>
-      {playerMode && (
-        <Button
-          sx={{ height: 36 }}
-          compact
-          onClick={() => setIsPlaying(!isPlaying)}
-        >
-          <PlayPauseIcon size={20} />
-        </Button>
-      )}
       <Button
-        sx={{ height: 36 }}
+        sx={{ height: 36, borderRadius: "8px 0px 0px 0px" }}
         compact
-        variant={playerMode ? "filled" : "outline"}
+        variant={playerMode ? "filled" : "light"}
+        onClick={() => setIsPlaying(!isPlaying)}
+      >
+        {playerMode && <PlayPauseIcon size={20} />}
+      </Button>
+
+      <Button
+        sx={{ height: 36, borderRadius: "0px 0px 0px 8px" }}
+        compact
+        variant={playerMode ? "filled" : "light"}
         onClick={() => {
           setPlayerMode(!playerMode);
         }}
@@ -98,13 +104,19 @@ const ChatInput = () => {
 
   const startRecording = useChatStore((state) => state.startRecording);
   const stopRecording = useChatStore((state) => state.stopRecording);
+  const showTextDuringPTT = useChatStore((state) => state.showTextDuringPTT);
+  const showTextInput = !pushToTalkMode || showTextDuringPTT;
   console.log("rendered with audioState", audioState);
   return (
     <div className={classes.textAreaContainer}>
-      <ChatTextInput className={classes.textArea} />
+      {showTextInput && <ChatTextInput className={classes.textArea} />}
       {pushToTalkMode && (
         <Button
-          sx={{ height: 72 }}
+          sx={{
+            height: 72,
+            borderRadius: "0px 0px 0px 0px",
+            width: showTextInput ? "72px" : "100%",
+          }}
           compact
           className={classes.recorderButton}
           onClick={() => {
@@ -148,11 +160,13 @@ const RecorderControls = () => {
     ? IconMicrophoneOff
     : IconMicrophone;
 
+  const showCancelButton = audioState === "recording";
+
   return (
     <div className={classes.recorderControls}>
-      {audioState === "recording" && (
+      {showCancelButton ? (
         <Button
-          sx={{ height: 36 }}
+          sx={{ height: 36, borderRadius: "0px 8px 0px 0px" }}
           compact
           color="red"
           variant="filled"
@@ -162,12 +176,18 @@ const RecorderControls = () => {
         >
           <IconX size={px("1.1rem")} stroke={1.5} />
         </Button>
+      ) : (
+        <Button
+          sx={{ height: 36, borderRadius: "0px 8px 0px 0px" }}
+          compact
+          variant="light"
+        ></Button>
       )}
 
       <Button
-        sx={{ height: 36 }}
+        sx={{ height: 36, borderRadius: "0px 0px 8px 0px" }}
         compact
-        variant={pushToTalkMode ? "filled" : "outline"}
+        variant={pushToTalkMode ? "filled" : "light"}
         onClick={() => setPushToTalkMode(!pushToTalkMode)}
       >
         <PushToTalkToggleIcon size={20} />
@@ -182,9 +202,7 @@ export default function UIController() {
   return (
     <div className={classes.container}>
       <PlayerControls />
-
       <ChatInput />
-
       <RecorderControls />
     </div>
   );

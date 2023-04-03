@@ -56,6 +56,7 @@ interface ChatState {
   playerMode: boolean;
   editingMessage: Message | undefined;
   ttsText: string | undefined;
+  showTextDuringPTT: boolean;
 
   addChat: (title?: string) => void;
   deleteChat: (id: string) => void;
@@ -127,6 +128,7 @@ const initialState = {
   submitNextAudio: true,
   audioState: "idle" as AudioState,
   audioChunks: [],
+  showTextDuringPTT: false,
   ttsText: undefined,
 };
 

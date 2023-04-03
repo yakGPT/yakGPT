@@ -10,6 +10,7 @@ import UIController from "@/components/UIController";
 
 export default function Home() {
   const apiKey = useChatStore((state) => state.apiKey);
+  const playerMode = useChatStore((state) => state.playerMode);
   const ttsText = useChatStore((state) => state.ttsText);
 
   console.log("Received TTS Text: ", ttsText);
@@ -52,7 +53,9 @@ export default function Home() {
           {apiKey && <UIController />}
         </div>
       </AppShell>
-      {ttsText && <AudioPlayer text={ttsText} voiceId="21m00Tcm4TlvDq8ikWAM" />}
+      {playerMode && ttsText && (
+        <AudioPlayer text={ttsText} voiceId="21m00Tcm4TlvDq8ikWAM" />
+      )}
     </>
   );
 }
