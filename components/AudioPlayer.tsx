@@ -110,7 +110,7 @@ const AudioStreamPlayer = () => {
     };
 
     fetchAndPlayAudioStream();
-  }, [apiKey11Labs, ttsText, ttsID, voiceId, setIsPlaying]);
+  }, [apiKey11Labs, ttsText, ttsID, setIsPlaying]);
 
   return <audio ref={audioRef} playsInline />;
 };
