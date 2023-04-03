@@ -51,7 +51,7 @@ export default function Home() {
           {apiKey && <UIController />}
         </div>
       </AppShell>
-      {playerMode && <AudioPlayer voiceId="21m00Tcm4TlvDq8ikWAM" />}
+      {playerMode && <AudioPlayer />}
     </>
   );
 }
