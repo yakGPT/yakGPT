@@ -411,7 +411,16 @@ export const useChatStore = create<ChatState>()(
       setNavOpened: (navOpened: boolean) => set((state) => ({ navOpened })),
       setPushToTalkMode: (pushToTalkMode: boolean) =>
         set((state) => ({ pushToTalkMode })),
-      setPlayerMode: (playerMode: boolean) => set((state) => ({ playerMode })),
+      setPlayerMode: (playerMode: boolean) => {
+        if (playerMode && !get().apiKey11Labs) {
+          notifications.show({
+            message:
+              'Please enter your ElevenLabs API key in "API Keys" to enable TTS',
+          });
+          return;
+        }
+        set((state) => ({ playerMode }));
+      },
       setEditingMessage: (editingMessage: Message | undefined) =>
         set((state) => ({ editingMessage })),
 
