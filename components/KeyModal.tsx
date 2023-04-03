@@ -13,12 +13,7 @@ import { notifications } from "@mantine/notifications";
 import { testKey as testKeyOpenAI } from "@/stores/OpenAI";
 import { testKey as testKey11Labs } from "@/stores/ElevenLabs";
 import { useChatStore } from "@/stores/ChatStore";
-import {
-  IconBallVolleyball,
-  IconCheck,
-  IconMicrophone,
-  IconX,
-} from "@tabler/icons-react";
+import { IconCheck, IconRobot, IconVolume, IconX } from "@tabler/icons-react";
 
 export function APIPanel({
   name,
@@ -117,16 +112,10 @@ export default function KeyModal({ close }: { close: () => void }) {
       <Box mx="auto">
         <Tabs defaultValue="openai">
           <Tabs.List>
-            <Tabs.Tab
-              value="openai"
-              icon={<IconBallVolleyball size={px("0.8rem")} />}
-            >
+            <Tabs.Tab value="openai" icon={<IconRobot size={px("0.8rem")} />}>
               OpenAI
             </Tabs.Tab>
-            <Tabs.Tab
-              value="11labs"
-              icon={<IconMicrophone size={px("0.8rem")} />}
-            >
+            <Tabs.Tab value="11labs" icon={<IconVolume size={px("0.8rem")} />}>
               Eleven Labs
             </Tabs.Tab>
           </Tabs.List>
