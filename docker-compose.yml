@@ -1,0 +1,17 @@
+version: "3.9"
+name: ${SERVICE}
+
+services:
+  gpt:
+    env_file: .env
+    image: ${SERVICE}:latest
+
+  nginx:
+    env_file: .env
+    image: nginx:alpine
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${CERTS}:/certs
+      - ./nginx.conf:/etc/nginx/nginx.conf.template
+    command: sh -c "envsubst \"`env | awk -F = '{printf \" $$%s\", $$1}'`\" < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"

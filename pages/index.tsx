@@ -8,16 +8,17 @@ import Hero from "@/components/Hero";
 import { useChatStore } from "@/stores/ChatStore";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import withBasicAuth from "@/pages/withBasicAuth";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
+function Home() {
   const theme = useMantineTheme();
 
   const apiKey = useChatStore((state) => state.apiKey);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  //Wait till NextJS rehydration completes
+  // Wait till NextJS rehydration completes
   useEffect(() => {
     setIsHydrated(true);
   }, []);
@@ -62,3 +63,5 @@ export default function Home() {
     </>
   );
 }
+
+export default withBasicAuth(Home);
