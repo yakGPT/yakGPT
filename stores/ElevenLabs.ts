@@ -21,7 +21,7 @@ export const testKey = async (apiKey: string): Promise<boolean> => {
   }
 };
 
-type Voice = {
+export type Voice = {
   voice_id: string;
   name: string;
 };
