@@ -39,8 +39,7 @@ export const genAudio = async ({
         "xi-api-key": apiKey,
         "Content-Type": "application/json",
       },
-      // body: JSON.stringify({ text }),
-      body: JSON.stringify({ text: "Yo" }),
+      body: JSON.stringify({ text }),
     });
     if (!response.ok || !response.body) {
       const readBody = await response.text();
