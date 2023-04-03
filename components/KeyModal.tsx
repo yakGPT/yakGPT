@@ -147,7 +147,7 @@ export default function KeyModal({ close }: { close: () => void }) {
               name="Enter Your Eleven Labs API Key"
               initialKey={apiKey11Labs}
               setKeyFun={setApiKey11Labs}
-              descriptionAboveInput="If you'd like to use TTS via Eleven Labs, you will need an Eleven Labs API Key. Your API Key is stored locally on your browser and never sent anywhere else. Note that cost estimation does not work for ElevenLabs and that the voices are very high-quality but you do pay for what you get."
+              descriptionAboveInput="If you'd like to use TTS via Eleven Labs, you will need an Eleven Labs API Key. Your API Key is stored locally on your browser and never sent anywhere else. Note that cost estimation does not work for ElevenLabs, so watch your usage!"
               descriptionBelowInput={
                 <p>
                   → Get your API key from your{" "}
