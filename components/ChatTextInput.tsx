@@ -45,7 +45,11 @@ export default function ChatInput({ className }: { className?: string }) {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     event.stopPropagation();
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (
+      !event.nativeEvent.isComposing &&
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
       event.preventDefault();
       doSubmit();
     }
