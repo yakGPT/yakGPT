@@ -1,5 +1,4 @@
 import Head from "next/head";
-import { Inter } from "next/font/google";
 import Nav from "@/components/Nav";
 import { AppShell } from "@mantine/core";
 import ChatDisplay from "@/components/ChatDisplay";
@@ -8,8 +7,6 @@ import { useChatStore } from "@/stores/ChatStore";
 import { useEffect, useState } from "react";
 import AudioPlayer from "@/components/AudioPlayer";
 import UIController from "@/components/UIController";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const apiKey = useChatStore((state) => state.apiKey);
@@ -53,7 +50,6 @@ export default function Home() {
         <div style={{ position: "relative", height: "100%" }}>
           {apiKey ? <ChatDisplay /> : <Hero />}
           {apiKey && <UIController />}
-          {/* {apiKey && <ChatInput />} */}
         </div>
       </AppShell>
       {ttsText && <AudioPlayer text={ttsText} voiceId="21m00Tcm4TlvDq8ikWAM" />}
