@@ -33,6 +33,7 @@ interface SettingsForm {
   spoken_language: string;
   spoken_language_code: string;
   voice_id: string;
+  auto_title: boolean;
   // non-model stuff
   push_to_talk_key: string;
 }
@@ -62,6 +63,7 @@ interface ChatState {
 
   addChat: (title?: string) => void;
   deleteChat: (id: string) => void;
+  clearChats: () => void;
   setActiveChat: (id: string) => void;
   pushMessage: (message: Message) => void;
   delMessage: (message: Message) => void;
@@ -73,6 +75,7 @@ interface ChatState {
   setApiState: (state: APIState) => void;
   updateSettingsForm: (settings: ChatState["settingsForm"]) => void;
   abortCurrentRequest: () => void;
+  updateChat: (chat: Partial<Chat>) => void;
   setChosenCharacter: (name: string) => void;
   setNavOpened: (opened: boolean) => void;
   setPushToTalkMode: (mode: boolean) => void;
@@ -101,6 +104,7 @@ const defaultSettings = {
   spoken_language: "English (en)",
   spoken_language_code: "en",
   voice_id: "21m00Tcm4TlvDq8ikWAM",
+  auto_title: true,
   // non-model stuff
   push_to_talk_key: "KeyC",
 };
@@ -140,6 +144,7 @@ export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
       ...initialState,
+      clearChats: () => set(() => ({ chats: [], activeChatId: undefined })),
       deleteChat: (id: string) =>
         set((state) => ({
           chats: state.chats.filter((chat) => chat.id !== id),
@@ -317,7 +322,9 @@ export const useChatStore = create<ChatState>()(
               }),
             }));
             updateTokens(tokensUsed);
-            findChatTitle();
+            if (get().settingsForm.auto_title) {
+              findChatTitle();
+            }
           },
           (errorRes, errorBody) => {
             let message = errorBody;
@@ -404,6 +411,15 @@ export const useChatStore = create<ChatState>()(
           currentAbortController: undefined,
         }));
       },
+      updateChat: (options) =>
+        set((state) => ({
+          chats: state.chats.map((c) => {
+            if (c.id === options.id) {
+              return { ...c, ...options };
+            }
+            return c;
+          }),
+        })),
       setChosenCharacter: (name: string) =>
         set((state) => ({
           chats: state.chats.map((c) => {
