@@ -29,11 +29,12 @@ interface SettingsForm {
   presence_penalty: number;
   frequency_penalty: number;
   logit_bias: string;
-  // non-model stuff
-  push_to_talk_key: string;
   auto_detect_language: boolean;
   spoken_language: string;
   spoken_language_code: string;
+  voice_id: string;
+  // non-model stuff
+  push_to_talk_key: string;
 }
 
 interface ChatState {
@@ -99,6 +100,7 @@ const defaultSettings = {
   auto_detect_language: false,
   spoken_language: "English (en)",
   spoken_language_code: "en",
+  voice_id: "21m00Tcm4TlvDq8ikWAM",
   // non-model stuff
   push_to_talk_key: "KeyC",
 };

@@ -21,6 +21,11 @@ export const testKey = async (apiKey: string): Promise<boolean> => {
   }
 };
 
+type Voice = {
+  voice_id: string;
+  name: string;
+};
+
 export const genAudio = async ({
   apiKey,
   text,
@@ -58,6 +63,26 @@ export const genAudio = async ({
       );
     }
     return response.body;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getVoices = async (apiKey: string): Promise<Voice[]> => {
+  try {
+    const response = await fetch(`${BASE_URL}/voices`, {
+      method: "GET",
+      headers: {
+        "xi-api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    return data.voices;
   } catch (error) {
     console.error(error);
     throw error;
