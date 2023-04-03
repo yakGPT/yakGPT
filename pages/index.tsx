@@ -11,9 +11,7 @@ import UIController from "@/components/UIController";
 export default function Home() {
   const apiKey = useChatStore((state) => state.apiKey);
   const playerMode = useChatStore((state) => state.playerMode);
-  const ttsText = useChatStore((state) => state.ttsText);
 
-  console.log("Received TTS Text: ", ttsText);
   const [isHydrated, setIsHydrated] = useState(false);
 
   //Wait till NextJS rehydration completes
@@ -53,9 +51,7 @@ export default function Home() {
           {apiKey && <UIController />}
         </div>
       </AppShell>
-      {playerMode && ttsText && (
-        <AudioPlayer text={ttsText} voiceId="21m00Tcm4TlvDq8ikWAM" />
-      )}
+      {playerMode && <AudioPlayer voiceId="21m00Tcm4TlvDq8ikWAM" />}
     </>
   );
 }

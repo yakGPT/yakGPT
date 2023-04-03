@@ -8,12 +8,11 @@ interface AudioStreamPlayerProps {
   voiceId: string;
 }
 
-const AudioStreamPlayer: React.FC<AudioStreamPlayerProps> = ({
-  text,
-  voiceId,
-}) => {
+const AudioStreamPlayer: React.FC<AudioStreamPlayerProps> = ({ voiceId }) => {
   const audioRef = useRef(new Audio());
   const apiKey11Labs = useChatStore((state) => state.apiKey11Labs);
+  const ttsText = useChatStore((state) => state.ttsText);
+  const ttsID = useChatStore((state) => state.ttsID);
 
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   const setIsPlaying = usePlayerStore((state) => state.setIsPlaying);
@@ -28,16 +27,25 @@ const AudioStreamPlayer: React.FC<AudioStreamPlayerProps> = ({
     }
   }, [isPlaying, duration]);
 
+  const initialRender = useRef(true);
   useEffect(() => {
+    // Do not play audio on initial render
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
+    if (!ttsText) {
+      return;
+    }
     const fetchAndPlayAudioStream = async () => {
       if (audioRef.current) {
         const audioSrc = audioRef.current.src;
-        console.log("called for text", text, "and voiceId", voiceId);
+        console.log("called for text", ttsText, "and voiceId", voiceId);
         let audioStream: ReadableStream<Uint8Array>;
         try {
           audioStream = await genAudio({
             apiKey: apiKey11Labs!,
-            text,
+            text: ttsText,
             voiceId,
           });
         } catch (error) {
@@ -106,7 +114,7 @@ const AudioStreamPlayer: React.FC<AudioStreamPlayerProps> = ({
     };
 
     fetchAndPlayAudioStream();
-  }, [apiKey11Labs, text, voiceId]);
+  }, [apiKey11Labs, ttsText, ttsID, voiceId, setIsPlaying]);
 
   return <audio ref={audioRef} playsInline />;
 };

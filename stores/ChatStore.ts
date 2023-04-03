@@ -55,6 +55,7 @@ interface ChatState {
   audioChunks: BlobPart[];
   playerMode: boolean;
   editingMessage: Message | undefined;
+  ttsID: string | undefined;
   ttsText: string | undefined;
   showTextDuringPTT: boolean;
 
@@ -129,6 +130,7 @@ const initialState = {
   audioState: "idle" as AudioState,
   audioChunks: [],
   showTextDuringPTT: false,
+  ttsID: undefined,
   ttsText: undefined,
 };
 
@@ -298,6 +300,7 @@ export const useChatStore = create<ChatState>()(
           (tokensUsed) => {
             set((state) => ({
               apiState: "idle",
+              ttsID: assistantMsgId,
               ttsText: state.chats
                 .find((c) => c.id === chat.id)
                 ?.messages.find((m) => m.id === assistantMsgId)?.content,
