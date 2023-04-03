@@ -321,7 +321,7 @@ export default function NavbarSimple() {
           </span>
         </a>
 
-        <Modal opened={openedKeyModal} onClose={closeKeyModal} title="API Key">
+        <Modal opened={openedKeyModal} onClose={closeKeyModal} title="API Keys">
           <KeyModal close={closeKeyModal} />
         </Modal>
 
@@ -336,7 +336,7 @@ export default function NavbarSimple() {
           }}
         >
           <IconKey className={classes.linkIcon} stroke={1.5} />
-          <span>API Key</span>
+          <span>API Keys</span>
         </a>
 
         <Modal

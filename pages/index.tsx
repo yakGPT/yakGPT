@@ -1,20 +1,17 @@
 import Head from "next/head";
-import { Inter } from "next/font/google";
 import Nav from "@/components/Nav";
-import { AppShell, useMantineTheme } from "@mantine/core";
+import { AppShell } from "@mantine/core";
 import ChatDisplay from "@/components/ChatDisplay";
-import ChatInput from "@/components/ChatInput";
 import Hero from "@/components/Hero";
 import { useChatStore } from "@/stores/ChatStore";
-import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-
-const inter = Inter({ subsets: ["latin"] });
+import AudioPlayer from "@/components/AudioPlayer";
+import UIController from "@/components/UIController";
 
 export default function Home() {
-  const theme = useMantineTheme();
-
   const apiKey = useChatStore((state) => state.apiKey);
+  const playerMode = useChatStore((state) => state.playerMode);
+
   const [isHydrated, setIsHydrated] = useState(false);
 
   //Wait till NextJS rehydration completes
@@ -25,10 +22,6 @@ export default function Home() {
   if (!isHydrated) {
     return <div>Loading...</div>;
   }
-
-  const AudioRecorder = dynamic(() => import("@/components/AudioRecorder"), {
-    ssr: false,
-  });
 
   return (
     <>
@@ -55,10 +48,10 @@ export default function Home() {
       >
         <div style={{ position: "relative", height: "100%" }}>
           {apiKey ? <ChatDisplay /> : <Hero />}
-          {apiKey && <ChatInput />}
+          {apiKey && <UIController />}
         </div>
       </AppShell>
-      <AudioRecorder />
+      {playerMode && <AudioPlayer />}
     </>
   );
 }

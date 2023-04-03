@@ -17,6 +17,7 @@ import ISO6391 from "iso-639-1";
 import { useForm } from "@mantine/form";
 import { IconBraces, IconMicrophone, IconSettings } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import { Voice, getVoices } from "@/stores/ElevenLabs";
 
 function getLanguages() {
   const languageCodes = ISO6391.getAllCodes();
@@ -28,14 +29,16 @@ function getLanguages() {
 
 export default function SettingsModal({ close }: { close: () => void }) {
   const [models, setModels] = useState<string[]>([]);
-  const [loadingModels, setLoadingModels] = useState(true);
+  const [voices, setVoices] = useState<Voice[]>([]);
 
   const apiKey = useChatStore((state) => state.apiKey);
+  const apiKey11Labs = useChatStore((state) => state.apiKey11Labs);
   const settingsForm = useChatStore((state) => state.settingsForm);
   const updateSettingsForm = useChatStore((state) => state.updateSettingsForm);
   const defaultSettings = useChatStore((state) => state.defaultSettings);
 
   useEffect(() => {
+    // Load OpenAI models
     async function fetchData() {
       if (!apiKey) return;
 
@@ -49,13 +52,27 @@ export default function SettingsModal({ close }: { close: () => void }) {
         );
       } catch (error) {
         console.error("Failed to fetch models:", error);
-      } finally {
-        setLoadingModels(false);
       }
     }
 
     fetchData();
   }, [apiKey]);
+
+  useEffect(() => {
+    // Load 11Labs voices
+    async function fetchData() {
+      if (!apiKey11Labs) return;
+
+      try {
+        const voices = await getVoices(apiKey11Labs);
+        setVoices(voices);
+      } catch (error) {
+        console.error("Failed to fetch models:", error);
+      }
+    }
+
+    fetchData();
+  }, [apiKey11Labs]);
 
   const form = useForm({
     initialValues: settingsForm,
@@ -146,12 +163,12 @@ export default function SettingsModal({ close }: { close: () => void }) {
             />
           </Tabs.Panel>
           <Tabs.Panel value="audio" pt="xs">
+            <h2>Speech Recognition</h2>
             <Switch
-              py="md"
+              pb="md"
               checked={form.values.auto_detect_language}
               label="Auto-detect language"
               onChange={(event) => {
-                console.log("checked", event.currentTarget.checked);
                 form.setFieldValue(
                   "auto_detect_language",
                   event.currentTarget.checked
@@ -172,6 +189,18 @@ export default function SettingsModal({ close }: { close: () => void }) {
               }}
               data={getLanguages().map((lang) => lang.label)}
             />
+            <h2>Text To Speech</h2>
+            <Select
+              required
+              label="Voice"
+              placeholder="Select a voice"
+              value={form.values.voice_id}
+              onChange={(value) => form.setFieldValue("voice_id", value!)}
+              data={voices.map((voice) => ({
+                label: voice.name,
+                value: voice.voice_id,
+              }))}
+            ></Select>
           </Tabs.Panel>
 
           <Tabs.Panel value="advanced" pt="xs">

@@ -26,7 +26,7 @@ async function fetchFromAPI(endpoint: string, key: string) {
   }
 }
 
-export async function testKey(key: string): Promise<boolean | undefined> {
+export async function testKey(key: string): Promise<boolean> {
   try {
     const res = await fetchFromAPI("https://api.openai.com/v1/models", key);
     return res.status === 200;
@@ -37,6 +37,7 @@ export async function testKey(key: string): Promise<boolean | undefined> {
       }
     }
   }
+  return false;
 }
 
 export async function fetchModels(key: string): Promise<string[]> {
