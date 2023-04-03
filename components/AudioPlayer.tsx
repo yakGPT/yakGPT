@@ -3,12 +3,15 @@ import { genAudio } from "@/stores/ElevenLabs";
 import { useChatStore } from "@/stores/ChatStore";
 import { usePlayerStore } from "@/stores/PlayerStore";
 
+const DEFAULT_VOICE = "21m00Tcm4TlvDq8ikWAM";
+
 const AudioStreamPlayer = () => {
   const audioRef = useRef(new Audio());
   const apiKey11Labs = useChatStore((state) => state.apiKey11Labs);
   const ttsText = useChatStore((state) => state.ttsText);
   const ttsID = useChatStore((state) => state.ttsID);
-  const voiceId = useChatStore((state) => state.settingsForm.voice_id);
+  const voiceId =
+    useChatStore((state) => state.settingsForm.voice_id) || DEFAULT_VOICE;
 
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   const setIsPlaying = usePlayerStore((state) => state.setIsPlaying);
