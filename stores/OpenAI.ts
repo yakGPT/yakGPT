@@ -159,7 +159,7 @@ export async function streamCompletion(
       const allMessages = chunk.toString().split("\n\n");
       for (const message of allMessages) {
         const cleaned = message.toString().slice(5);
-        if (cleaned === "[DONE]") {
+        if (cleaned === " [DONE]") {
           return;
         }
 
@@ -167,6 +167,7 @@ export async function streamCompletion(
         try {
           parsed = JSON.parse(cleaned);
         } catch (e) {
+          console.error(e)
           return;
         }
 
