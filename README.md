@@ -4,13 +4,17 @@ A simple, locally running ChatGPT UI that makes your text generation faster and 
 
 ## Features
 
+- **GPT 3.5 & GPT 4** via OpenAI API
+- **Speech-to-Text** via OpenAI Whisper
+- **Text-to-Speech** via Eleven Labs
 - Run locally on browser – no need to install any applications
 - Faster than the official UI – connect directly to the API
 - Easy mic integration – no more typing!
 - Use your own API key – ensure your data privacy and security
-
 - All state stored locally in localStorage – no analytics or external service calls
 - Access on https://yakgpt.vercel.app or run locally!
+
+> Note that GPT-4 API access is needed to use it. GPT 3.5 is enabled for all users.
 
 ## Screenshots
 
@@ -56,9 +60,12 @@ To utilize YakGPT, you'll need to acquire an API key for OpenAI. The app should 
 
 ### Add to .env.local(⚠️ Local use only)
 
-If you want the key to persist across app builds, you can add it to the .env.local.
+If you want the keys to persist across app builds, you can add it to the .env.local.
 
-`echo "NEXT_PUBLIC_OPENAI_API_KEY=<your-open-ai-key-here>" > .env.local`
+```
+echo "NEXT_PUBLIC_OPENAI_API_KEY=<your-open-ai-key-here>" > .env.local
+echo "NEXT_PUBLIC_11LABS_API_KEY=<your-eleven-labs-key-here>" >> .env.local
+```
 
 ## 🐳 Docker
 

@@ -118,7 +118,7 @@ const defaultSettings = {
 const initialState = {
   apiState: "idle" as APIState,
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || undefined,
-  apiKey11Labs: undefined,
+  apiKey11Labs: process.env.NEXT_PUBLIC_11LABS_API_KEY || undefined,
   chats: [],
   activeChatId: undefined,
   colorScheme: "light" as "light" | "dark",
