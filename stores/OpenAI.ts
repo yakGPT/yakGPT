@@ -113,7 +113,6 @@ const paramKeys = [
   "logit_bias",
 ];
 
-
 export async function streamCompletion(
   messages: Message[],
   params: ChatCompletionParams,
@@ -123,8 +122,6 @@ export async function streamCompletion(
   endCallback?: ((tokensUsed: number) => void) | undefined,
   errorCallback?: ((res: IncomingMessage, body: string) => void) | undefined
 ) {
-
-  // Get model information based on completion parameters
   const modelInfo = getModelInfo(params.model);
 
   // Truncate messages to fit within maxTokens parameter
@@ -134,16 +131,13 @@ export async function streamCompletion(
     params.max_tokens
   );
 
-  // Log information about the submitted messages
   console.log(`Sending ${submitMessages.length} messages:`);
   console.log(submitMessages.map((m) => m.content.slice(0, 50)).join("\n"));
 
-  // Filter completion parameters based on a list of valid keys
   const submitParams = Object.fromEntries(
     Object.entries(params).filter(([key]) => paramKeys.includes(key))
   );
 
-  // Construct payload to be sent to API endpoint
   const payload = JSON.stringify({
     messages: submitMessages.map(({ role, content }) => ({ role, content })),
     stream: true,
@@ -155,13 +149,10 @@ export async function streamCompletion(
     },
   });
 
-  // Initialize buffer for completed messages
   let buffer = "";
 
-  // Define success callback to handle response from API endpoint
   const successCallback = (res: IncomingMessage) => {
     res.on("data", (chunk) => {
-      // Handle abort signal from AbortController
       if (abortController?.signal.aborted) {
         res.destroy();
         endCallback?.(0);
@@ -174,44 +165,37 @@ export async function streamCompletion(
         // Remove first 5 characters ("data:") of response
         const cleaned = message.toString().slice(5);
 
-        // Break function if current chunk is last ("data: [DONE]")
-        if (cleaned === " [DONE]") {
+        if (!cleaned || cleaned === " [DONE]") {
           return;
         }
 
-        // Parse chunk
         let parsed;
         try {
           parsed = JSON.parse(cleaned);
         } catch (e) {
-          console.error(e)
+          console.error(e);
           return;
         }
 
-        // Append parsed chunk to buffer if it has content
         const content = parsed.choices[0]?.delta?.content;
         if (content === undefined) {
           continue;
         }
         buffer += content;
 
-        // Call optional callback function for each completed message
         callback?.(content);
       }
     });
 
-    // Call optional endCallback function when stream ends
     res.on("end", () => {
-      // Count the tokens used in the original messages and the received completions
       const tokensUsed =
         countTokens(submitMessages.map((m) => m.content).join("\n")) +
         countTokens(buffer);
 
-      // Call the endCallback function if it exists, passing in the number of tokens used
       endCallback?.(tokensUsed);
     });
   };
-  // Call the _streamCompletion function with the given payload, API key, abortController, successCallback and errorCallback.
+
   return _streamCompletion(
     payload,
     apiKey,
@@ -219,5 +203,4 @@ export async function streamCompletion(
     successCallback,
     errorCallback
   );
-
 }
