@@ -107,6 +107,8 @@ const ChatInput = () => {
 
   const startRecording = useChatStore((state) => state.startRecording);
   const stopRecording = useChatStore((state) => state.stopRecording);
+  const activeChatId = useChatStore((state) => state.activeChatId);
+  const addChat = useChatStore((state) => state.addChat);
   const showTextDuringPTT = useChatStore((state) => state.showTextDuringPTT);
   const showTextInput = !pushToTalkMode || showTextDuringPTT;
   console.log("rendered with audioState", audioState);
@@ -128,6 +130,9 @@ const ChatInput = () => {
             } else if (audioState === "transcribing") {
               return;
             } else {
+              if (!activeChatId) {
+                addChat(router);
+              }
               stopRecording(true);
             }
           }}
