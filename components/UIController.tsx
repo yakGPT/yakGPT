@@ -11,6 +11,7 @@ import {
 } from "@tabler/icons-react";
 import ChatTextInput from "./ChatTextInput";
 import { usePlayerStore } from "@/stores/PlayerStore";
+import { useRouter } from "next/router";
 
 const styles = createStyles((theme: MantineTheme) => ({
   container: {
@@ -98,6 +99,8 @@ const PlayerControls = () => {
 
 const ChatInput = () => {
   const { classes } = styles();
+
+  const router = useRouter();
 
   const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
   const audioState = useChatStore((state) => state.audioState);

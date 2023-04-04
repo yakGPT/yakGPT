@@ -1,6 +1,7 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
 import {
+  AppShell,
   ColorScheme,
   ColorSchemeProvider,
   MantineProvider,
@@ -9,6 +10,11 @@ import { Notifications } from "@mantine/notifications";
 import "highlight.js/styles/stackoverflow-dark.css";
 
 import { useChatStore } from "@/stores/ChatStore";
+
+import Nav from "@/components/Nav";
+import { useEffect, useState } from "react";
+import AudioPlayer from "@/components/AudioPlayer";
+import UIController from "@/components/UIController";
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
@@ -22,14 +28,27 @@ export default function App(props: AppProps) {
     setColorScheme(nextColorScheme);
   };
 
+  const apiKey = useChatStore((state) => state.apiKey);
+  const playerMode = useChatStore((state) => state.playerMode);
+
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  //Wait till NextJS rehydration completes
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       <Head>
-        <title>Page title</title>
-        <meta
-          name="viewport"
-          content="minimum-scale=1, initial-scale=1, width=device-width"
-        />
+        <title>YakGPT</title>
+        <meta name="description" content="A new ChatGPT UI" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
       <ColorSchemeProvider
         colorScheme={colorScheme}
@@ -73,7 +92,28 @@ export default function App(props: AppProps) {
           }}
         >
           <Notifications />
-          <Component {...pageProps} />
+          <AppShell
+            padding={0}
+            navbar={<Nav />}
+            layout="alt"
+            navbarOffsetBreakpoint="sm"
+            asideOffsetBreakpoint="sm"
+            styles={(theme) => ({
+              main: {
+                backgroundColor:
+                  theme.colorScheme === "dark"
+                    ? theme.colors.dark[8]
+                    : theme.colors.gray[0],
+              },
+            })}
+          >
+            <div style={{ position: "relative", height: "100%" }}>
+              <Component {...pageProps} />
+
+              {apiKey && <UIController />}
+            </div>
+            {playerMode && <AudioPlayer />}
+          </AppShell>
         </MantineProvider>
       </ColorSchemeProvider>
     </>

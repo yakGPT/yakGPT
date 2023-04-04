@@ -113,6 +113,7 @@ const AudioStreamPlayer = () => {
     };
 
     fetchAndPlayAudioStream();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiKey11Labs, ttsText, ttsID, setIsPlaying]);
 
   return <audio ref={audioRef} playsInline />;

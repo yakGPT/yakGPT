@@ -9,6 +9,7 @@ import { notifications } from "@mantine/notifications";
 import { getModelInfo } from "./Model";
 import { assertIsError } from "@/stores/OpenAI";
 import axios from "axios";
+import { NextRouter } from "next/router";
 
 type APIState = "idle" | "loading" | "error";
 type AudioState = "idle" | "recording" | "transcribing" | "processing";
@@ -17,6 +18,11 @@ const excludeFromState = [
   "currentAbortController",
   "recorder",
   "recorderTimeout",
+  "submitNextAudio",
+  "audioChunks",
+  "ttsID",
+  "ttsText",
+  "activeChatId",
 ];
 
 interface SettingsForm {
@@ -61,13 +67,13 @@ interface ChatState {
   ttsText: string | undefined;
   showTextDuringPTT: boolean;
 
-  addChat: (title?: string) => void;
+  addChat: (router: NextRouter) => void;
   deleteChat: (id: string) => void;
   clearChats: () => void;
-  setActiveChat: (id: string) => void;
+  setActiveChatId: (id: string | undefined) => void;
   pushMessage: (message: Message) => void;
   delMessage: (message: Message) => void;
-  submitMessage: (message: Message) => void;
+  submitMessage: (message: Message) => Promise<void>;
   updateMessage: (message: Message) => void;
   setColorScheme: (scheme: "light" | "dark") => void;
   setApiKey: (key: string) => void;
@@ -84,9 +90,9 @@ interface ChatState {
   regenerateAssistantMessage: (message: Message) => void;
   submitAudio: (newMessage: Message, audio: Blob) => Promise<void>;
   sendAudioData: (audio: Blob) => Promise<void>;
-  startRecording: () => void;
-  stopRecording: (submit: boolean) => void;
-  destroyRecorder: () => void;
+  startRecording: () => Promise<void>;
+  stopRecording: (submit: boolean) => Promise<void>;
+  destroyRecorder: () => Promise<void>;
   setTtsText: (text: string | undefined) => void;
 }
 
@@ -109,19 +115,12 @@ const defaultSettings = {
   push_to_talk_key: "KeyC",
 };
 
-const initialChatId = uuidv4();
-
 const initialState = {
   apiState: "idle" as APIState,
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || undefined,
   apiKey11Labs: undefined,
-  chats: [
-    {
-      id: initialChatId,
-      messages: [],
-    },
-  ],
-  activeChatId: initialChatId,
+  chats: [],
+  activeChatId: undefined,
   colorScheme: "light" as "light" | "dark",
   currentAbortController: undefined,
   settingsForm: defaultSettings,
@@ -144,33 +143,30 @@ export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
       ...initialState,
-      clearChats: () => set(() => ({ chats: [], activeChatId: undefined })),
+      clearChats: () => set(() => ({ chats: [] })),
       deleteChat: (id: string) =>
         set((state) => ({
           chats: state.chats.filter((chat) => chat.id !== id),
-          activeChatId:
-            state.activeChatId === id
-              ? state.chats[state.chats.length - 1].id
-              : state.activeChatId,
         })),
-      addChat: (title?: string) => {
+      addChat: (router: NextRouter) => {
         window.scrollTo(0, 0);
-        return set((state) => {
-          const id = uuidv4();
-          return {
-            chats: [
-              ...state.chats,
-              {
-                id,
-                title: title,
-                messages: [],
-              },
-            ],
-            activeChatId: id,
-          };
-        });
+        const id = uuidv4();
+
+        set((state) => ({
+          activeChatId: id,
+          chats: [
+            ...state.chats,
+            {
+              id,
+              title: undefined,
+              messages: [],
+            },
+          ],
+        }));
+        router.push(`/chat/${id}`);
       },
-      setActiveChat: (id: string) => set((state) => ({ activeChatId: id })),
+      setActiveChatId: (id: string | undefined) =>
+        set(() => ({ activeChatId: id })),
       updateMessage: (message: Message) => {
         const chat = getChatById(get().chats, get().activeChatId);
         if (chat === undefined) {
@@ -183,7 +179,7 @@ export const useChatStore = create<ChatState>()(
           }),
         }));
       },
-      pushMessage: async (message: Message) => {
+      pushMessage: (message: Message) => {
         const chat = getChatById(get().chats, get().activeChatId);
         if (chat === undefined) {
           console.error("Chat not found");
@@ -195,7 +191,7 @@ export const useChatStore = create<ChatState>()(
           }),
         }));
       },
-      delMessage: async (message: Message) => {
+      delMessage: (message: Message) => {
         const chat = getChatById(get().chats, get().activeChatId);
         if (chat === undefined) {
           console.error("Chat not found");
@@ -213,11 +209,14 @@ export const useChatStore = create<ChatState>()(
           console.error("Message is empty");
           return;
         }
-        const chat = get().chats.find((c) => c.id === get().activeChatId);
+
+        const activeChatId = get().activeChatId;
+        const chat = get().chats.find((c) => c.id === activeChatId!);
         if (chat === undefined) {
           console.error("Chat not found");
           return;
         }
+        console.log("chat", chat.id);
 
         // If this is an existing message, remove all the messages after it
         const index = chat.messages.findIndex((m) => m.id === message.id);
@@ -247,7 +246,7 @@ export const useChatStore = create<ChatState>()(
         // Add the assistant's response
         set((state) => ({
           chats: state.chats.map((c) => {
-            if (c.id === chat.id) {
+            if (c.id === state.activeChatId) {
               c.messages.push({
                 id: assistantMsgId,
                 content: "",

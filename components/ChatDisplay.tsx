@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import {
   ActionIcon,
   createStyles,
@@ -12,8 +11,8 @@ import NewChat from "./NewChat";
 import MuHeader from "./MuHeader";
 
 import ChatMessage from "./ChatMessage";
-import { Message } from "@/stores/Message";
-import { IconArrowDown, IconChevronsDown } from "@tabler/icons-react";
+import { IconChevronsDown } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme: MantineTheme) => ({
   container: {
@@ -108,10 +107,17 @@ const useStyles = createStyles((theme: MantineTheme) => ({
 }));
 
 const ChatDisplay = () => {
+  const router = useRouter();
+  const activeChatId = router.query.chatId as string | undefined;
+
+  const setActiveChatId = useChatStore((state) => state.setActiveChatId);
+  useEffect(() => {
+    setActiveChatId(activeChatId as string | undefined);
+  }, [activeChatId, setActiveChatId]);
+
   const { classes, theme } = useStyles();
 
   const chats = useChatStore((state) => state.chats);
-  const activeChatId = useChatStore((state) => state.activeChatId);
 
   const activeChat = chats.find((chat) => chat.id === activeChatId);
 
@@ -160,7 +166,7 @@ const ChatDisplay = () => {
       <div className={classes.chatContainer}>
         <MuHeader />
 
-        {activeChat?.messages.length === 0 && <NewChat />}
+        {!activeChatId && <NewChat />}
         {activeChat?.messages.map((message, idx) => (
           <ChatMessage key={message.id} message={message} />
         ))}

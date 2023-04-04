@@ -11,10 +11,12 @@ import {
   Divider,
   px,
 } from "@mantine/core";
+import { v4 as uuidv4 } from "uuid";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useChatStore } from "@/stores/ChatStore";
 import { getModelInfo, modelInfos } from "@/stores/Model";
+import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -86,10 +88,11 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function HeaderMiddle({ children }: any) {
+export default function MuHeader({ children }: any) {
   const { classes, theme } = useStyles();
   const chats = useChatStore((state) => state.chats);
-  const activeChatId = useChatStore((state) => state.activeChatId);
+  const router = useRouter();
+  const activeChatId = router.query.chatId as string | undefined;
 
   const activeChat = chats.find((chat) => chat.id === activeChatId);
 
@@ -146,7 +149,7 @@ export default function HeaderMiddle({ children }: any) {
           <MediaQuery largerThan="sm" styles={{ display: "none", width: 0 }}>
             <ActionIcon
               onClick={() => {
-                addChat();
+                addChat(router);
                 if (isSmall) {
                   setNavOpened(false);
                 }

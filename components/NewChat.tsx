@@ -22,6 +22,7 @@ import philosopher from "../public/chars/philosopher.png";
 import stephen_hawking from "../public/chars/stephen_hawking.png";
 import therapist from "../public/chars/therapist.png";
 import tolle from "../public/chars/tolle.png";
+import { useRouter } from "next/router";
 
 const scriptBase = ({
   character,
@@ -214,6 +215,8 @@ function CardsCarousel({ children }: { children: React.ReactNode }) {
 }
 
 export default function NewChatCarousel() {
+  const router = useRouter();
+  const addChat = useChatStore((state) => state.addChat);
   const submitMessage = useChatStore((state) => state.submitMessage);
   const setChosenCharacter = useChatStore((state) => state.setChosenCharacter);
 
@@ -232,6 +235,7 @@ export default function NewChatCarousel() {
               description={character.shortDescription}
               onClick={(e) => {
                 setChosenCharacter(key);
+                addChat(router);
                 submitMessage({
                   id: uuidv4(),
                   content:
