@@ -29,6 +29,9 @@ function MenuItem({
 export default function UIController() {
   const showTextDuringPTT = useChatStore((state) => state.showTextDuringPTT);
   const modelChoiceSTT = useChatStore((state) => state.modelChoiceSTT);
+  const autoSendStreamingSTT = useChatStore(
+    (state) => state.autoSendStreamingSTT
+  );
 
   const menuStructure = [
     {
@@ -60,6 +63,12 @@ export default function UIController() {
           text: "Always show Text input",
           checked: showTextDuringPTT,
           onClick: () => update({ showTextDuringPTT: !showTextDuringPTT }),
+        },
+        {
+          text: "Auto send text",
+          checked: autoSendStreamingSTT,
+          onClick: () =>
+            update({ autoSendStreamingSTT: !autoSendStreamingSTT }),
         },
       ],
     },

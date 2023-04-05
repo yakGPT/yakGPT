@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Message } from "./Message";
 import { persist } from "zustand/middleware";
 import { Chat } from "./Chat";
+import { SpeechRecognizer } from "microsoft-cognitiveservices-speech-sdk";
 
 export type APIState = "idle" | "loading" | "error";
 export type AudioState = "idle" | "recording" | "transcribing" | "processing";
@@ -9,6 +10,7 @@ export type AudioState = "idle" | "recording" | "transcribing" | "processing";
 export const excludeFromState = [
   "currentAbortController",
   "recorder",
+  "recognizer",
   "recorderTimeout",
   "textInputValue",
   "apiState",
@@ -54,6 +56,7 @@ export interface ChatState {
   navOpened: boolean;
   pushToTalkMode: boolean;
   recorder: MediaRecorder | undefined;
+  recognizer: SpeechRecognizer | undefined;
   recorderTimeout: ReturnType<typeof setTimeout> | undefined;
   submitNextAudio: boolean;
   audioState: AudioState;
@@ -63,6 +66,7 @@ export interface ChatState {
   ttsID: string | undefined;
   ttsText: string | undefined;
   showTextDuringPTT: boolean;
+  autoSendStreamingSTT: boolean;
   modelChoiceChat: string | undefined;
   modelChoiceTTS: string | undefined;
   modelChoiceSTT: string | undefined;
@@ -105,6 +109,7 @@ export const initialState = {
   pushToTalkMode: false,
   editingMessage: undefined,
   recorder: undefined,
+  recognizer: undefined,
   recorderTimeout: undefined,
   submitNextAudio: true,
   audioState: "idle" as AudioState,
@@ -112,6 +117,7 @@ export const initialState = {
   showTextDuringPTT: false,
   ttsID: undefined,
   ttsText: undefined,
+  autoSendStreamingSTT: true,
   modelChoiceChat: undefined,
   modelChoiceTTS: undefined,
   modelChoiceSTT: undefined,
