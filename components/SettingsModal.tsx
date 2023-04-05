@@ -18,6 +18,7 @@ import { useForm } from "@mantine/form";
 import { IconBraces, IconMicrophone, IconSettings } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Voice, getVoices } from "@/stores/ElevenLabs";
+import { updateSettingsForm } from "@/stores/ChatActions";
 
 function getLanguages() {
   const languageCodes = ISO6391.getAllCodes();
@@ -34,7 +35,6 @@ export default function SettingsModal({ close }: { close: () => void }) {
   const apiKey = useChatStore((state) => state.apiKey);
   const apiKey11Labs = useChatStore((state) => state.apiKey11Labs);
   const settingsForm = useChatStore((state) => state.settingsForm);
-  const updateSettingsForm = useChatStore((state) => state.updateSettingsForm);
   const defaultSettings = useChatStore((state) => state.defaultSettings);
 
   useEffect(() => {

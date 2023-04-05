@@ -12,6 +12,14 @@ import {
 import ChatTextInput from "./ChatTextInput";
 import { usePlayerStore } from "@/stores/PlayerStore";
 import { useRouter } from "next/router";
+import UIControllerSettings from "./UIControllerSettings";
+import * as OpusRecorder from "@/stores/RecorderActions";
+import * as AzureRecorder from "@/stores/AzureSpeechActions";
+import {
+  addChat,
+  setPlayerMode,
+  setPushToTalkMode,
+} from "@/stores/ChatActions";
 
 const styles = createStyles((theme: MantineTheme) => ({
   container: {
@@ -62,7 +70,6 @@ const styles = createStyles((theme: MantineTheme) => ({
 const PlayerControls = () => {
   const { classes } = styles();
 
-  const setPlayerMode = useChatStore((state) => state.setPlayerMode);
   const playerMode = useChatStore((state) => state.playerMode);
 
   const PlayerToggleIcon = playerMode ? IconVolumeOff : IconVolume;
@@ -105,12 +112,13 @@ const ChatInput = () => {
   const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
   const audioState = useChatStore((state) => state.audioState);
 
-  const startRecording = useChatStore((state) => state.startRecording);
-  const stopRecording = useChatStore((state) => state.stopRecording);
   const activeChatId = useChatStore((state) => state.activeChatId);
-  const addChat = useChatStore((state) => state.addChat);
   const showTextDuringPTT = useChatStore((state) => state.showTextDuringPTT);
   const showTextInput = !pushToTalkMode || showTextDuringPTT;
+
+  const modelChoiceSTT = useChatStore((state) => state.modelChoiceSTT);
+  const Recorder = modelChoiceSTT === "azure" ? AzureRecorder : OpusRecorder;
+
   console.log("rendered with audioState", audioState);
   return (
     <div className={classes.textAreaContainer}>
@@ -126,14 +134,14 @@ const ChatInput = () => {
           className={classes.recorderButton}
           onClick={() => {
             if (audioState === "idle") {
-              startRecording();
+              Recorder.startRecording();
             } else if (audioState === "transcribing") {
               return;
             } else {
               if (!activeChatId) {
                 addChat(router);
               }
-              stopRecording(true);
+              Recorder.stopRecording(true);
             }
           }}
         >
@@ -158,17 +166,18 @@ const ChatInput = () => {
 const RecorderControls = () => {
   const { classes } = styles();
 
-  const setPushToTalkMode = useChatStore((state) => state.setPushToTalkMode);
   const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
 
   const audioState = useChatStore((state) => state.audioState);
-  const stopRecording = useChatStore((state) => state.stopRecording);
 
   const PushToTalkToggleIcon = pushToTalkMode
     ? IconMicrophoneOff
     : IconMicrophone;
 
   const showCancelButton = audioState === "recording";
+
+  const modelChoiceSTT = useChatStore((state) => state.modelChoiceSTT);
+  const Recorder = modelChoiceSTT === "azure" ? AzureRecorder : OpusRecorder;
 
   return (
     <div className={classes.recorderControls}>
@@ -179,24 +188,26 @@ const RecorderControls = () => {
           color="red"
           variant="filled"
           onClick={() => {
-            stopRecording(false);
+            Recorder.stopRecording(false);
           }}
         >
           <IconX size={px("1.1rem")} stroke={1.5} />
         </Button>
       ) : (
-        <Button
-          sx={{ height: 36, borderRadius: "0px 8px 0px 0px" }}
-          compact
-          variant="light"
-        ></Button>
+        <UIControllerSettings />
       )}
 
       <Button
         sx={{ height: 36, borderRadius: "0px 0px 8px 0px" }}
         compact
         variant={pushToTalkMode ? "filled" : "light"}
-        onClick={() => setPushToTalkMode(!pushToTalkMode)}
+        onClick={() => {
+          setPushToTalkMode(!pushToTalkMode);
+          Recorder.stopRecording(false);
+          if (pushToTalkMode) {
+            Recorder.destroyRecorder();
+          }
+        }}
       >
         <PushToTalkToggleIcon size={20} />
       </Button>

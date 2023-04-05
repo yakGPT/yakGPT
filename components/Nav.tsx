@@ -33,6 +33,12 @@ import ClearChatsButton from "./ClearChatsButton";
 import KeyModal from "./KeyModal";
 import SettingsModal from "./SettingsModal";
 import { useRouter } from "next/router";
+import {
+  clearChats,
+  deleteChat,
+  setNavOpened,
+  updateChat,
+} from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -138,15 +144,8 @@ export default function NavbarSimple() {
   const [openedTitleModal, { open: openTitleModal, close: closeTitleModal }] =
     useDisclosure(false);
 
-  const setActiveChatId = useChatStore((state) => state.setActiveChatId);
-  const deleteChat = useChatStore((state) => state.deleteChat);
-  const clearChats = useChatStore((state) => state.clearChats);
-
   const chats = useChatStore((state) => state.chats);
-  const updateChat = useChatStore((state) => state.updateChat);
-
   const navOpened = useChatStore((state) => state.navOpened);
-  const setNavOpened = useChatStore((state) => state.setNavOpened);
 
   const [editedTitle, setEditedTitle] = useState("");
 

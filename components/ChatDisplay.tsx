@@ -13,6 +13,7 @@ import MuHeader from "./MuHeader";
 import ChatMessage from "./ChatMessage";
 import { IconChevronsDown } from "@tabler/icons-react";
 import { useRouter } from "next/router";
+import { setActiveChatId } from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme: MantineTheme) => ({
   container: {
@@ -110,10 +111,9 @@ const ChatDisplay = () => {
   const router = useRouter();
   const activeChatId = router.query.chatId as string | undefined;
 
-  const setActiveChatId = useChatStore((state) => state.setActiveChatId);
   useEffect(() => {
     setActiveChatId(activeChatId as string | undefined);
-  }, [activeChatId, setActiveChatId]);
+  }, [activeChatId]);
 
   const { classes, theme } = useStyles();
 
