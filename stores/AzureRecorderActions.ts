@@ -56,9 +56,12 @@ export const startRecording = async () => {
     apiKeyAzureRegion
   );
 
-  // TODO: Make this configurable
+  const { auto_detect_language_azure, spoken_language_code_azure } =
+    get().settingsForm;
 
-  speechConfig.speechRecognitionLanguage = "en-US";
+  if (!auto_detect_language_azure && spoken_language_code_azure) {
+    speechConfig.speechRecognitionLanguage = spoken_language_code_azure;
+  }
 
   const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
   const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);

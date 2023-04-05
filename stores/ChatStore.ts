@@ -23,6 +23,7 @@ export const excludeFromState = [
 ];
 
 interface SettingsForm {
+  // GPT
   model: string;
   temperature: number;
   top_p: number;
@@ -32,13 +33,18 @@ interface SettingsForm {
   presence_penalty: number;
   frequency_penalty: number;
   logit_bias: string;
+  auto_title: boolean;
+  // Whisper
   auto_detect_language: boolean;
   spoken_language: string;
   spoken_language_code: string;
+  // ElevenLabs
   voice_id: string;
-  auto_title: boolean;
-  // non-model stuff
-  push_to_talk_key: string;
+  // Azure
+  voice_id_azure: string;
+  auto_detect_language_azure: boolean;
+  spoken_language_azure: string;
+  spoken_language_code_azure: string;
 }
 
 export interface ChatState {
@@ -83,13 +89,18 @@ export const defaultSettings = {
   presence_penalty: 0,
   frequency_penalty: 0,
   logit_bias: "",
+  auto_title: true,
+  // Whisper
   auto_detect_language: false,
   spoken_language: "English (en)",
   spoken_language_code: "en",
+  // ElevenLabs
   voice_id: "21m00Tcm4TlvDq8ikWAM",
-  auto_title: true,
-  // non-model stuff
-  push_to_talk_key: "KeyC",
+  // Azure
+  voice_id_azure: "en-US-JaneNeural",
+  auto_detect_language_azure: true,
+  spoken_language_azure: "English (US)",
+  spoken_language_code_azure: "en-US",
 };
 
 export const initialState = {

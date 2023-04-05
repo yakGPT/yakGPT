@@ -3,7 +3,7 @@ import { genAudio } from "@/stores/AzureSDK";
 import { useChatStore } from "@/stores/ChatStore";
 import { usePlayerStore } from "@/stores/PlayerStore";
 
-const DEFAULT_VOICE = "21m00Tcm4TlvDq8ikWAM";
+const DEFAULT_VOICE = "en-US-JaneNeural";
 
 const AudioStreamPlayer = () => {
   const audioRef = useRef(new Audio());
@@ -12,7 +12,7 @@ const AudioStreamPlayer = () => {
   const ttsText = useChatStore((state) => state.ttsText);
   const ttsID = useChatStore((state) => state.ttsID);
   const voiceId =
-    useChatStore((state) => state.settingsForm.voice_id) || DEFAULT_VOICE;
+    useChatStore((state) => state.settingsForm.voice_id_azure) || DEFAULT_VOICE;
 
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
 
@@ -58,7 +58,8 @@ const AudioStreamPlayer = () => {
           const audioData = await genAudio(
             ttsText,
             apiKeyAzure,
-            apiKeyAzureRegion
+            apiKeyAzureRegion,
+            voiceId
           );
           if (audioData) {
             const blob = new Blob([audioData], { type: "audio/mpeg" });

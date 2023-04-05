@@ -5,8 +5,8 @@ A simple, locally running ChatGPT UI that makes your text generation faster and 
 ## Features
 
 - **GPT 3.5 & GPT 4** via OpenAI API
-- **Speech-to-Text** via OpenAI Whisper
-- **Text-to-Speech** via Eleven Labs
+- **Speech-to-Text** via Azure & OpenAI Whisper
+- **Text-to-Speech** via Azure & Eleven Labs
 - Run locally on browser – no need to install any applications
 - Faster than the official UI – connect directly to the API
 - Easy mic integration – no more typing!

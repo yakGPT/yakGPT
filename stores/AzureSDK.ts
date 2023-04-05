@@ -43,6 +43,30 @@ export async function testKey(
   return resultPromise;
 }
 
+function createSSML(
+  text: string,
+  voice: string = "en-US-JaneNeural",
+  style: string = "cheerful"
+): string {
+  let expressAs = "";
+
+  if (style) {
+    expressAs = `<mstts:express-as style="${style}">${text}</mstts:express-as>`;
+  } else {
+    expressAs = text;
+  }
+
+  return `<speak xmlns="http://www.w3.org/2001/10/synthesis"
+                xmlns:mstts="http://www.w3.org/2001/mstts"
+                xmlns:emo="http://www.w3.org/2009/10/emotionml"
+                version="1.0"
+                xml:lang="en-US">
+                  <voice name="${voice}">
+                    ${expressAs}
+                  </voice>
+                </speak>`;
+}
+
 export async function genAudio(
   text: string,
   subscriptionKey: string,
@@ -89,26 +113,22 @@ export async function genAudio(
   return resultPromise;
 }
 
-function createSSML(
-  text: string,
-  voice: string = "en-US-JaneNeural",
-  style: string = "cheerful"
-): string {
-  let expressAs = "";
-
-  if (style) {
-    expressAs = `<mstts:express-as style="${style}">${text}</mstts:express-as>`;
-  } else {
-    expressAs = text;
+export async function getVoices(
+  subscriptionKey: string,
+  serviceRegion?: string
+): Promise<SpeechSDK.VoiceInfo[] | null> {
+  try {
+    const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(
+      subscriptionKey,
+      serviceRegion || "eastus"
+    );
+    const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
+    const result = await synthesizer.getVoicesAsync();
+    return result.voices;
+  } catch (error) {
+    console.error("Error getting available voices:", error);
+    return null;
   }
-
-  return `<speak xmlns="http://www.w3.org/2001/10/synthesis"
-                xmlns:mstts="http://www.w3.org/2001/mstts"
-                xmlns:emo="http://www.w3.org/2009/10/emotionml"
-                version="1.0"
-                xml:lang="en-US">
-                  <voice name="${voice}">
-                    ${expressAs}
-                  </voice>
-                </speak>`;
 }
+
+export type Voice = SpeechSDK.VoiceInfo;
