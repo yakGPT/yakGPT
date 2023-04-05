@@ -20,6 +20,7 @@ import {
 import { upperFirst, useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
   IconArrowRight,
+  IconDownload,
   IconEdit,
   IconKey,
   IconMoon,
@@ -187,6 +188,29 @@ export default function NavbarSimple() {
       </a>
       {chat.id === activeChatId && (
         <>
+          <Tooltip label="Download" withArrow position="right">
+            <a
+              href={`/chat/export/${chat.id}`}
+              style={{
+                position: "absolute",
+                right: 35,
+              }}
+            >
+              <ActionIcon
+                variant="default"
+                size={18}
+                sx={{
+                  boxShadow: `8px 0 16px 20px ${
+                    theme.colorScheme === "dark"
+                      ? theme.colors.dark[7]
+                      : "white"
+                  }`,
+                }}
+              >
+                <IconDownload size={px("0.8rem")} stroke={1.5} />
+              </ActionIcon>
+            </a>
+          </Tooltip>
           <Tooltip label="Delete" withArrow position="right">
             <a
               href="#"
