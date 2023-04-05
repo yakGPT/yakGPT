@@ -6,6 +6,7 @@ import { notifications } from "@mantine/notifications";
 import { NextRouter } from "next/router";
 import { APIState, ChatState, useChatStore } from "./ChatStore";
 import { submitMessage } from "./SubmitMessage";
+import { fetchModels } from "./OpenAI";
 
 const get = useChatStore.getState;
 const set = useChatStore.setState;
@@ -151,3 +152,21 @@ export const regenerateAssistantMessage = (message: Message) => {
 
 export const setTtsText = (ttsText: string | undefined) =>
   set((state) => ({ ttsText }));
+
+export const refreshModels = async () => {
+  const { apiKey } = get();
+  // Load OpenAI models
+  if (!apiKey) return;
+
+  try {
+    const modelIDs = await fetchModels(apiKey);
+    // Use only models that start with gpt-3.5 or gpt-4
+    update({
+      modelChoicesChat: modelIDs.filter(
+        (id) => id.startsWith("gpt-3.5") || id.startsWith("gpt-4")
+      ),
+    });
+  } catch (error) {
+    console.error("Failed to fetch models:", error);
+  }
+};

@@ -13,14 +13,15 @@ import { useChatStore } from "@/stores/ChatStore";
 
 import Nav from "@/components/Nav";
 import { useEffect, useState } from "react";
-import AudioPlayer from "@/components/AudioPlayer";
 import UIController from "@/components/UIController";
+import { setColorScheme } from "@/stores/ChatActions";
+import ElevenLabsPlayer from "@/components/ElevenLabsPlayer";
+import AzurePlayer from "@/components/AzurePlayer";
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
 
   const colorScheme = useChatStore((state) => state.colorScheme);
-  const setColorScheme = useChatStore((state) => state.setColorScheme);
 
   const toggleColorScheme = (value?: ColorScheme) => {
     const nextColorScheme =
@@ -30,6 +31,7 @@ export default function App(props: AppProps) {
 
   const apiKey = useChatStore((state) => state.apiKey);
   const playerMode = useChatStore((state) => state.playerMode);
+  const modelChoiceTTS = useChatStore((state) => state.modelChoiceTTS);
 
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -41,6 +43,9 @@ export default function App(props: AppProps) {
   if (!isHydrated) {
     return <div>Loading...</div>;
   }
+
+  const AudioPlayer =
+    modelChoiceTTS === "azure" ? AzurePlayer : ElevenLabsPlayer;
 
   return (
     <>

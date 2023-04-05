@@ -67,7 +67,7 @@ export interface ChatState {
   ttsText: string | undefined;
   showTextDuringPTT: boolean;
   autoSendStreamingSTT: boolean;
-  modelChoiceChat: string | undefined;
+  modelChoicesChat: string[] | undefined;
   modelChoiceTTS: string | undefined;
   modelChoiceSTT: string | undefined;
   textInputValue: string;
@@ -118,6 +118,7 @@ export const initialState = {
   ttsID: undefined,
   ttsText: undefined,
   autoSendStreamingSTT: true,
+  modelChoicesChat: undefined,
   modelChoiceChat: undefined,
   modelChoiceTTS: undefined,
   modelChoiceSTT: undefined,

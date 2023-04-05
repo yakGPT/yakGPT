@@ -1,8 +1,13 @@
-import { update } from "@/stores/ChatActions";
+import {
+  refreshModels,
+  update,
+  updateSettingsForm,
+} from "@/stores/ChatActions";
 import { useChatStore } from "@/stores/ChatStore";
+import { getModelInfo } from "@/stores/Model";
 import { Button, Menu, px } from "@mantine/core";
 import { IconCheck, IconDotsVertical } from "@tabler/icons-react";
-import React from "react";
+import React, { useEffect } from "react";
 
 function MenuItem({
   item,
@@ -28,18 +33,35 @@ function MenuItem({
 
 export default function UIController() {
   const showTextDuringPTT = useChatStore((state) => state.showTextDuringPTT);
+  const modelChoicesChat =
+    useChatStore((state) => state.modelChoicesChat) || [];
+  const settingsForm = useChatStore((state) => state.settingsForm);
   const modelChoiceSTT = useChatStore((state) => state.modelChoiceSTT);
+  const modelChoiceTTS = useChatStore((state) => state.modelChoiceTTS);
   const autoSendStreamingSTT = useChatStore(
     (state) => state.autoSendStreamingSTT
   );
 
+  useEffect(() => {
+    refreshModels();
+  }, []);
+
+  // Filter out models that end with a date eg. gpt-3-1234
+  const primaryModels = modelChoicesChat.filter(
+    (model) => !model.match(/-\d{4}$/)
+  );
   const menuStructure = [
     {
       label: "Chat",
-      items: [
-        { text: "GPT 3.5", checked: true },
-        { text: "GPT 4", checked: false },
-      ],
+      items: primaryModels.map((model) => ({
+        text: getModelInfo(model).displayName,
+        checked: settingsForm.model === model,
+        onClick: () =>
+          updateSettingsForm({
+            ...settingsForm,
+            model,
+          }),
+      })),
     },
     {
       label: "Speech to Text",
@@ -57,7 +79,22 @@ export default function UIController() {
       ],
     },
     {
-      label: "Other",
+      label: "Text to Speech",
+      items: [
+        {
+          text: "Azure",
+          checked: modelChoiceTTS === "azure",
+          onClick: () => update({ modelChoiceTTS: "azure" }),
+        },
+        {
+          text: "ElevenLabs",
+          checked: modelChoiceTTS === "11labs",
+          onClick: () => update({ modelChoiceTTS: "11labs" }),
+        },
+      ],
+    },
+    {
+      label: "Speech to Text Settings",
       items: [
         {
           text: "Always show Text input",

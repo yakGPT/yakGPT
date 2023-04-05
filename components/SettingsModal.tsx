@@ -18,7 +18,11 @@ import { useForm } from "@mantine/form";
 import { IconBraces, IconMicrophone, IconSettings } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Voice, getVoices } from "@/stores/ElevenLabs";
-import { updateSettingsForm } from "@/stores/ChatActions";
+import {
+  refreshModels,
+  update,
+  updateSettingsForm,
+} from "@/stores/ChatActions";
 
 function getLanguages() {
   const languageCodes = ISO6391.getAllCodes();
@@ -29,7 +33,8 @@ function getLanguages() {
 }
 
 export default function SettingsModal({ close }: { close: () => void }) {
-  const [models, setModels] = useState<string[]>([]);
+  const modelChoicesChat =
+    useChatStore((state) => state.modelChoicesChat) || [];
   const [voices, setVoices] = useState<Voice[]>([]);
 
   const apiKey = useChatStore((state) => state.apiKey);
@@ -38,25 +43,8 @@ export default function SettingsModal({ close }: { close: () => void }) {
   const defaultSettings = useChatStore((state) => state.defaultSettings);
 
   useEffect(() => {
-    // Load OpenAI models
-    async function fetchData() {
-      if (!apiKey) return;
-
-      try {
-        const modelIDs = await fetchModels(apiKey);
-        // Use only models that start with gpt-3.5 or gpt-4
-        setModels(
-          modelIDs.filter(
-            (id) => id.startsWith("gpt-3.5") || id.startsWith("gpt-4")
-          )
-        );
-      } catch (error) {
-        console.error("Failed to fetch models:", error);
-      }
-    }
-
-    fetchData();
-  }, [apiKey]);
+    refreshModels();
+  }, []);
 
   useEffect(() => {
     // Load 11Labs voices
@@ -139,7 +127,10 @@ export default function SettingsModal({ close }: { close: () => void }) {
               placeholder="Select a model"
               value={form.values.model}
               onChange={(value) => form.setFieldValue("model", value!)}
-              data={models.map((model) => ({ label: model, value: model }))}
+              data={modelChoicesChat.map((model) => ({
+                label: model,
+                value: model,
+              }))}
             ></Select>
 
             <Text mt="lg" size="sm">

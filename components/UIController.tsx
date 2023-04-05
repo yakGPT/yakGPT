@@ -14,7 +14,7 @@ import { usePlayerStore } from "@/stores/PlayerStore";
 import { useRouter } from "next/router";
 import UIControllerSettings from "./UIControllerSettings";
 import * as OpusRecorder from "@/stores/RecorderActions";
-import * as AzureRecorder from "@/stores/AzureSpeechActions";
+import * as AzureRecorder from "@/stores/AzureRecorderActions";
 import {
   addChat,
   setPlayerMode,
