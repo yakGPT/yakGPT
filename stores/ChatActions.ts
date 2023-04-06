@@ -121,13 +121,6 @@ export const setPushToTalkMode = (pushToTalkMode: boolean) =>
   set((state) => ({ pushToTalkMode }));
 
 export const setPlayerMode = (playerMode: boolean) => {
-  if (playerMode && !get().apiKey11Labs) {
-    notifications.show({
-      message:
-        'Please enter your ElevenLabs API key in "API Keys" to enable TTS',
-    });
-    return;
-  }
   set((state) => ({ playerMode }));
 };
 

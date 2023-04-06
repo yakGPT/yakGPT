@@ -102,7 +102,7 @@ export const defaultSettings = {
   auto_detect_language_azure: true,
   spoken_language_azure: "English (US)",
   spoken_language_code_azure: "en-US",
-  spoken_language_style: "cheerful",
+  spoken_language_style: "friendly",
 };
 
 export const initialState = {
@@ -127,14 +127,14 @@ export const initialState = {
   submitNextAudio: true,
   audioState: "idle" as AudioState,
   audioChunks: [],
-  showTextDuringPTT: false,
+  showTextDuringPTT: true,
   ttsID: undefined,
   ttsText: undefined,
   autoSendStreamingSTT: true,
   modelChoicesChat: undefined,
   modelChoiceChat: undefined,
-  modelChoiceTTS: undefined,
-  modelChoiceSTT: undefined,
+  modelChoiceTTS: "azure",
+  modelChoiceSTT: "azure",
   textInputValue: "",
 };
 

@@ -9,7 +9,8 @@ export async function testKey(
     serviceRegion || "eastus"
   );
 
-  const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig);
+  // @ts-ignore - null is for audioConfig to prevent it from auto-speaking
+  const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
 
   let inputText = "Key saved.";
 
@@ -46,7 +47,7 @@ export async function testKey(
 function createSSML(
   text: string,
   voice: string = "en-US-JaneNeural",
-  style: string = "cheerful"
+  style: string = "friendly"
 ): string {
   let expressAs = "";
 

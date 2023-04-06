@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { genAudio } from "@/stores/AzureSDK";
 import { useChatStore } from "@/stores/ChatStore";
 import { usePlayerStore } from "@/stores/PlayerStore";
+import { notifications } from "@mantine/notifications";
 
 const DEFAULT_VOICE = "en-US-JaneNeural";
 
@@ -51,6 +52,11 @@ const AudioStreamPlayer = () => {
     const fetchAndPlayAudioStream = async () => {
       if (isPlaying) setIsPlaying(false);
       if (!apiKeyAzure || !apiKeyAzureRegion) {
+        notifications.show({
+          title: "Azure Speech API keys not set",
+          message: "Please set the Azure Speech API keys in the settings.",
+          color: "red",
+        });
         return;
       }
       if (audioRef.current) {

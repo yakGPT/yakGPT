@@ -97,7 +97,7 @@ export default function UIController() {
       label: "Speech to Text Settings",
       items: [
         {
-          text: "Always show Text input",
+          text: "Show input next to mic",
           checked: showTextDuringPTT,
           onClick: () => update({ showTextDuringPTT: !showTextDuringPTT }),
         },
