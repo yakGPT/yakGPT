@@ -27,7 +27,7 @@ export const sendAudioData = async (blob: Blob) => {
   await submitAudio(newMessage, blob);
 };
 
-export const startRecording = async () => {
+export const startRecording = async (router: NextRouter) => {
   let recorder = get().recorder;
   console.log("start");
   set((state) => ({ audioChunks: [] }));

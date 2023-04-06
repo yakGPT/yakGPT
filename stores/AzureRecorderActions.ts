@@ -4,11 +4,13 @@ import { useChatStore } from "./ChatStore";
 import { submitMessage } from "./SubmitMessage";
 
 import * as speechsdk from "microsoft-cognitiveservices-speech-sdk";
+import { addChat } from "./ChatActions";
+import { NextRouter } from "next/router";
 
 const get = useChatStore.getState;
 const set = useChatStore.setState;
 
-export const startRecording = async () => {
+export const startRecording = async (router: NextRouter) => {
   let recorder = get().recorder;
   console.log("start");
   clearTimeout(get().recorderTimeout);
@@ -30,6 +32,9 @@ export const startRecording = async () => {
     if (persist) {
       lastTextUpdate = "";
       if (get().autoSendStreamingSTT) {
+        if (!get().activeChatId) {
+          addChat(router);
+        }
         submitMessage({
           id: uuidv4(),
           content: text,

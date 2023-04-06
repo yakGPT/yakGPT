@@ -134,7 +134,7 @@ const ChatInput = () => {
           className={classes.recorderButton}
           onClick={() => {
             if (audioState === "idle") {
-              Recorder.startRecording();
+              Recorder.startRecording(router);
             } else if (audioState === "transcribing") {
               return;
             } else {
