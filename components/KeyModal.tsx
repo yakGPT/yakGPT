@@ -192,14 +192,13 @@ export default function KeyModal({ close }: { close: () => void }) {
               descriptionAboveInput="If you'd like to use TTS via Azure, you will need an Azure Speech API Key. Your API Key is stored locally on your browser and never sent anywhere else. Note that cost estimation does not work for Azure, so watch your usage!"
               descriptionBelowInput={
                 <p>
-                  → Get your API key from your{" "}
+                  → Azure gives a $200 free credit on signup.{" "}
                   <a
                     target="_blank"
-                    href="https://beta.elevenlabs.io/speech-synthesis"
+                    href="https://carldesouza.com/get-a-microsoft-cognitive-services-subscription-key/"
                   >
-                    AZURE
+                    This guide explains the steps.
                   </a>
-                  .
                 </p>
               }
               validateKey={testKeyAzure}
