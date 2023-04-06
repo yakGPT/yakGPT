@@ -7,6 +7,7 @@ import { assertIsError } from "@/stores/OpenAI";
 import { useChatStore } from "./ChatStore";
 import { delMessage, pushMessage, setApiState } from "./ChatActions";
 import { submitMessage } from "./SubmitMessage";
+import { NextRouter } from "next/router";
 
 const get = useChatStore.getState;
 const set = useChatStore.setState;
