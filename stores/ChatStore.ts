@@ -45,6 +45,7 @@ interface SettingsForm {
   auto_detect_language_azure: boolean;
   spoken_language_azure: string;
   spoken_language_code_azure: string;
+  spoken_language_style: string;
 }
 
 export interface ChatState {
@@ -101,6 +102,7 @@ export const defaultSettings = {
   auto_detect_language_azure: true,
   spoken_language_azure: "English (US)",
   spoken_language_code_azure: "en-US",
+  spoken_language_style: "cheerful",
 };
 
 export const initialState = {

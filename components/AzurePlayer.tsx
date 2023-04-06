@@ -13,6 +13,9 @@ const AudioStreamPlayer = () => {
   const ttsID = useChatStore((state) => state.ttsID);
   const voiceId =
     useChatStore((state) => state.settingsForm.voice_id_azure) || DEFAULT_VOICE;
+  const voiceStyle = useChatStore(
+    (state) => state.settingsForm.spoken_language_style
+  );
 
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
 
@@ -59,7 +62,8 @@ const AudioStreamPlayer = () => {
             ttsText,
             apiKeyAzure,
             apiKeyAzureRegion,
-            voiceId
+            voiceId,
+            voiceStyle
           );
           if (audioData) {
             const blob = new Blob([audioData], { type: "audio/mpeg" });
@@ -73,7 +77,6 @@ const AudioStreamPlayer = () => {
         }
 
         audioRef.current.addEventListener("canplay", () => {
-          console.log("canplay");
           setIsPlaying(true);
         });
         audioRef.current.addEventListener("ended", () => {

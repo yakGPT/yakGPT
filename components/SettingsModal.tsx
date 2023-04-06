@@ -21,7 +21,6 @@ import { useEffect, useState } from "react";
 import * as ElevenLabs from "@/stores/ElevenLabs";
 import { refreshModels, updateSettingsForm } from "@/stores/ChatActions";
 import * as Azure from "@/stores/AzureSDK";
-import * as SpeechSDK from "microsoft-cognitiveservices-speech-sdk";
 import { azureCandidateLanguages } from "./azureLangs";
 
 function getLanguages() {
@@ -37,6 +36,7 @@ export default function SettingsModal({ close }: { close: () => void }) {
     useChatStore((state) => state.modelChoicesChat) || [];
   const [voices11Labs, setVoices11Labs] = useState<ElevenLabs.Voice[]>([]);
   const [voicesAzure, setVoicesAzure] = useState<Azure.Voice[]>([]);
+  const [voiceStylesAzure, setVoiceStylesAzure] = useState<string[]>([]);
 
   const apiKey11Labs = useChatStore((state) => state.apiKey11Labs);
   const apiKeyAzure = useChatStore((state) => state.apiKeyAzure);
@@ -64,18 +64,6 @@ export default function SettingsModal({ close }: { close: () => void }) {
     fetchData();
   }, [apiKey11Labs]);
 
-  useEffect(() => {
-    // Load Azure voices
-    async function fetchData() {
-      if (!apiKeyAzure || !apiKeyAzureRegion) return;
-      const voices = await Azure.getVoices(apiKeyAzure, apiKeyAzureRegion);
-      if (!voices) return;
-      setVoicesAzure(voices);
-    }
-
-    fetchData();
-  }, [apiKeyAzure, apiKeyAzureRegion]);
-
   const form = useForm({
     initialValues: settingsForm,
     validate: {
@@ -97,6 +85,26 @@ export default function SettingsModal({ close }: { close: () => void }) {
       },
     },
   });
+
+  useEffect(() => {
+    // Load Azure voices
+    async function fetchData() {
+      if (!apiKeyAzure || !apiKeyAzureRegion) return;
+      const voices = await Azure.getVoices(apiKeyAzure, apiKeyAzureRegion);
+      if (!voices) return;
+      setVoicesAzure(voices);
+    }
+
+    fetchData();
+  }, [apiKeyAzure, apiKeyAzureRegion]);
+
+  useEffect(() => {
+    setVoiceStylesAzure(
+      voicesAzure.find(
+        (voice) => voice.shortName === form.values.voice_id_azure
+      )?.styleList || []
+    );
+  }, [voicesAzure, form.values.voice_id_azure]);
 
   const languages = getLanguages();
   const langDisplayToCode = languages.reduce((acc, cur) => {
@@ -328,12 +336,28 @@ export default function SettingsModal({ close }: { close: () => void }) {
               label="Voice"
               placeholder="Select a voice"
               value={form.values.voice_id_azure}
-              onChange={(value) => form.setFieldValue("voice_id_azure", value!)}
+              onChange={(value) => {
+                setVoiceStylesAzure(
+                  voicesAzure.find((voice) => voice.shortName === value)
+                    ?.styleList || []
+                );
+                form.setFieldValue("voice_id_azure", value!);
+              }}
               data={voicesAzure.map((voice) => ({
                 label: voice.shortName,
                 value: voice.shortName,
               }))}
             ></Autocomplete>
+            <Select
+              label="Voice style"
+              disabled={voiceStylesAzure.length === 0}
+              placeholder="Select a voice style"
+              value={form.values.spoken_language_style}
+              onChange={(value) =>
+                form.setFieldValue("spoken_language_style", value!)
+              }
+              data={voiceStylesAzure}
+            ></Select>
           </Tabs.Panel>
           <Tabs.Panel value="11labs" pt="xs">
             <Select
