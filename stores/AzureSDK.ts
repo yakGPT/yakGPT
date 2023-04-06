@@ -123,6 +123,7 @@ export async function getVoices(
       subscriptionKey,
       serviceRegion || "eastus"
     );
+    // @ts-ignore - null is for audioConfig to prevent it from auto-speaking
     const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
     const result = await synthesizer.getVoicesAsync();
     return result.voices;

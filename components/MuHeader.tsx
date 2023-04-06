@@ -11,12 +11,12 @@ import {
   Divider,
   px,
 } from "@mantine/core";
-import { v4 as uuidv4 } from "uuid";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useChatStore } from "@/stores/ChatStore";
 import { getModelInfo, modelInfos } from "@/stores/Model";
 import { useRouter } from "next/router";
+import { addChat, setNavOpened } from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -99,9 +99,6 @@ export default function MuHeader({ children }: any) {
   const activeModel = useChatStore((state) => state.settingsForm.model);
 
   const navOpened = useChatStore((state) => state.navOpened);
-  const setNavOpened = useChatStore((state) => state.setNavOpened);
-
-  const addChat = useChatStore((state) => state.addChat);
 
   const isSmall = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
   const isKnownModel = modelInfos[activeModel] !== undefined;
