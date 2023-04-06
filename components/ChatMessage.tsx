@@ -15,6 +15,10 @@ import MessageDisplay from "./MessageDisplay";
 import UserIcon from "./UserIcon";
 import AssistantIcon from "./AssistantIcon";
 import { Message } from "@/stores/Message";
+import {
+  regenerateAssistantMessage,
+  setEditingMessage,
+} from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme: MantineTheme) => ({
   container: {
@@ -111,11 +115,7 @@ const useStyles = createStyles((theme: MantineTheme) => ({
 export default function ChatDisplay({ message }: { message: Message }) {
   const { classes, cx } = useStyles();
 
-  const setEditingMessage = useChatStore((state) => state.setEditingMessage);
   const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
-  const regenerateAssistantMessage = useChatStore(
-    (state) => state.regenerateAssistantMessage
-  );
 
   const handleMainAction = (message: Message) => {
     if (message.role === "assistant") {

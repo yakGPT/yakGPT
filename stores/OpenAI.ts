@@ -43,7 +43,6 @@ export async function testKey(key: string): Promise<boolean> {
 export async function fetchModels(key: string): Promise<string[]> {
   try {
     const res = await fetchFromAPI("https://api.openai.com/v1/models", key);
-    console.log(res.data.data);
     return res.data.data.map((model: any) => model.id);
   } catch (e) {
     return [];

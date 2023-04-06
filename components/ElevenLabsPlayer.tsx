@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { genAudio } from "@/stores/ElevenLabs";
 import { useChatStore } from "@/stores/ChatStore";
 import { usePlayerStore } from "@/stores/PlayerStore";
+import { notifications } from "@mantine/notifications";
 
 const DEFAULT_VOICE = "21m00Tcm4TlvDq8ikWAM";
 
@@ -37,13 +38,22 @@ const AudioStreamPlayer = () => {
       return;
     }
     const fetchAndPlayAudioStream = async () => {
+      if (!apiKey11Labs) {
+        notifications.show({
+          title: "Eleven Labs API keys not set",
+          message: "Please set the Eleven Labs API keys in the settings.",
+          color: "red",
+        });
+        return;
+      }
+
       if (audioRef.current) {
         const audioSrc = audioRef.current.src;
         console.log("called for text", ttsText, "and voiceId", voiceId);
         let audioStream: ReadableStream<Uint8Array>;
         try {
           audioStream = await genAudio({
-            apiKey: apiKey11Labs!,
+            apiKey: apiKey11Labs,
             text: ttsText,
             voiceId,
           });

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useChatStore } from "@/stores/ChatStore";
 import {
@@ -10,23 +10,20 @@ import {
 } from "@mantine/core";
 import { IconArrowRight, IconPlayerStop, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/router";
+import { abortCurrentRequest, submitMessage } from "@/stores/SubmitMessage";
+import { addChat, setEditingMessage, update } from "@/stores/ChatActions";
 
 export default function ChatInput({ className }: { className?: string }) {
   const theme = useMantineTheme();
-  const [value, setValue] = useState("");
+  const router = useRouter();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const router = useRouter();
+  const value = useChatStore((state) => state.textInputValue);
+  const setValue = (value: string) => update({ textInputValue: value });
 
-  const submitMessage = useChatStore((state) => state.submitMessage);
   const activeChatId = useChatStore((state) => state.activeChatId);
-  const addChat = useChatStore((state) => state.addChat);
-
   const apiState = useChatStore((state) => state.apiState);
-  const abortRequest = useChatStore((state) => state.abortCurrentRequest);
-
   const editingMessage = useChatStore((state) => state.editingMessage);
-  const setEditingMessage = useChatStore((state) => state.setEditingMessage);
 
   useEffect(() => {
     // Focus the input on first render
@@ -37,7 +34,7 @@ export default function ChatInput({ className }: { className?: string }) {
 
   const doSubmit = () => {
     if (apiState === "loading") {
-      abortRequest();
+      abortCurrentRequest();
       return;
     }
     if (editingMessage) {

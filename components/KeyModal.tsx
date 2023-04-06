@@ -7,18 +7,30 @@ import {
   Tabs,
   px,
   PasswordInput,
+  TextInput,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 
 import { testKey as testKeyOpenAI } from "@/stores/OpenAI";
 import { testKey as testKey11Labs } from "@/stores/ElevenLabs";
+import { testKey as testKeyAzure } from "@/stores/AzureSDK";
+
 import { useChatStore } from "@/stores/ChatStore";
-import { IconCheck, IconRobot, IconVolume, IconX } from "@tabler/icons-react";
+import {
+  IconBrandWindows,
+  IconCheck,
+  IconRobot,
+  IconVolume,
+  IconX,
+} from "@tabler/icons-react";
+import { update } from "@/stores/ChatActions";
 
 export function APIPanel({
   name,
   initialKey,
+  initialRegion,
   setKeyFun,
+  setKeyFunRegion,
   descriptionAboveInput,
   descriptionBelowInput,
   validateKey,
@@ -26,18 +38,21 @@ export function APIPanel({
 }: {
   name: string;
   initialKey: string | undefined;
+  initialRegion?: string | undefined;
   setKeyFun: (key: string) => void;
+  setKeyFunRegion?: (key: string) => void;
   descriptionAboveInput: string;
   descriptionBelowInput: React.ReactNode;
-  validateKey: (key: string) => Promise<boolean>;
+  validateKey: (key: string, region?: string) => Promise<boolean>;
   closeModal: () => void;
 }) {
   const [checkStatus, setCheckStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [apiKey, setApiKey] = useState(initialKey);
+  const [region, setRegion] = useState(initialRegion);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCheckStatus("idle");
     setApiKey(event.target.value);
   };
@@ -47,7 +62,7 @@ export function APIPanel({
     if (apiKey) {
       setCheckStatus("loading");
 
-      const keyValid = await validateKey(apiKey);
+      const keyValid = await validateKey(apiKey, region);
 
       if (keyValid) {
         notifications.show({
@@ -55,6 +70,9 @@ export function APIPanel({
           color: "green",
         });
         setKeyFun(apiKey);
+        if (setKeyFunRegion && region) {
+          setKeyFunRegion(region);
+        }
         setCheckStatus("success");
       } else {
         notifications.show({
@@ -84,11 +102,22 @@ export function APIPanel({
           placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
           icon={icon}
           value={apiKey}
-          onChange={handleChange}
+          onChange={handleKeyChange}
         />
+        {setKeyFunRegion && (
+          <TextInput
+            label="Region"
+            placeholder="westus"
+            value={region}
+            onChange={(event) => setRegion(event.target.value)}
+          />
+        )}
         {descriptionBelowInput}
         <Group position="right" mt="md">
-          <Button type="submit" disabled={initialKey === apiKey}>
+          <Button
+            type="submit"
+            disabled={initialKey === apiKey && initialRegion === region}
+          >
             Save
           </Button>
           <Button onClick={closeModal} variant="light">
@@ -102,10 +131,15 @@ export function APIPanel({
 
 export default function KeyModal({ close }: { close: () => void }) {
   const apiKeyOpenAI = useChatStore((state) => state.apiKey);
-  const setApiKeyOpenAI = useChatStore((state) => state.setApiKey);
-
   const apiKey11Labs = useChatStore((state) => state.apiKey11Labs);
-  const setApiKey11Labs = useChatStore((state) => state.setApiKey11Labs);
+  const apiKeyAzure = useChatStore((state) => state.apiKeyAzure);
+  const apiKeyAzureRegion = useChatStore((state) => state.apiKeyAzureRegion);
+
+  const setApiKeyOpenAI = (key: string) => update({ apiKey: key });
+  const setApiKeyAzure = (key: string) => update({ apiKeyAzure: key });
+  const setApiKeyAzureRegion = (region: string) =>
+    update({ apiKeyAzureRegion: region });
+  const setApiKey11Labs = (key: string) => update({ apiKey11Labs: key });
 
   return (
     <div>
@@ -114,6 +148,12 @@ export default function KeyModal({ close }: { close: () => void }) {
           <Tabs.List>
             <Tabs.Tab value="openai" icon={<IconRobot size={px("0.8rem")} />}>
               OpenAI
+            </Tabs.Tab>
+            <Tabs.Tab
+              value="azure"
+              icon={<IconBrandWindows size={px("0.8rem")} />}
+            >
+              Azure
             </Tabs.Tab>
             <Tabs.Tab value="11labs" icon={<IconVolume size={px("0.8rem")} />}>
               Eleven Labs
@@ -139,6 +179,30 @@ export default function KeyModal({ close }: { close: () => void }) {
                 </p>
               }
               validateKey={testKeyOpenAI}
+              closeModal={close}
+            />
+          </Tabs.Panel>
+          <Tabs.Panel value="azure" pt="xs">
+            <APIPanel
+              name="Enter Your Azure Speech API Key"
+              initialKey={apiKeyAzure}
+              initialRegion={apiKeyAzureRegion}
+              setKeyFun={setApiKeyAzure}
+              setKeyFunRegion={setApiKeyAzureRegion}
+              descriptionAboveInput="If you'd like to use TTS via Azure, you will need an Azure Speech API Key. Your API Key is stored locally on your browser and never sent anywhere else. Note that cost estimation does not work for Azure, so watch your usage!"
+              descriptionBelowInput={
+                <p>
+                  → Get your API key from your{" "}
+                  <a
+                    target="_blank"
+                    href="https://beta.elevenlabs.io/speech-synthesis"
+                  >
+                    AZURE
+                  </a>
+                  .
+                </p>
+              }
+              validateKey={testKeyAzure}
               closeModal={close}
             />
           </Tabs.Panel>
