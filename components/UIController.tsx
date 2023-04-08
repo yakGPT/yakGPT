@@ -109,12 +109,18 @@ const ChatInput = () => {
 
   const router = useRouter();
 
+  const editingMessage = useChatStore((state) => state.editingMessage);
+
   const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
   const audioState = useChatStore((state) => state.audioState);
 
   const activeChatId = useChatStore((state) => state.activeChatId);
   const showTextDuringPTT = useChatStore((state) => state.showTextDuringPTT);
-  const showTextInput = !pushToTalkMode || showTextDuringPTT;
+  const showTextInput = !pushToTalkMode || showTextDuringPTT || editingMessage;
+
+  console.log("!pushToTalkMode :>> ", !pushToTalkMode);
+  console.log("showTextDuringPTT :>> ", showTextDuringPTT);
+  console.log("editingMessage :>> ", editingMessage);
 
   const modelChoiceSTT = useChatStore((state) => state.modelChoiceSTT);
   const Recorder = modelChoiceSTT === "azure" ? AzureRecorder : OpusRecorder;
