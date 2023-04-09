@@ -196,15 +196,13 @@ export default function ChatDisplay({ message }: { message: Message }) {
             />
           </div>
           <div className={classes.actionIconsWrapper}>
-            {!(message.role !== "assistant" && pushToTalkMode) && (
-              <ActionIcon
-                className={cx(classes.actionIcon, classes.topOfMessage)}
-                onClick={() => handleMainAction(message)}
-                color="gray"
-              >
-                {message.role === "assistant" ? <IconRepeat /> : <IconEdit />}
-              </ActionIcon>
-            )}
+            <ActionIcon
+              className={cx(classes.actionIcon, classes.topOfMessage)}
+              onClick={() => handleMainAction(message)}
+              color="gray"
+            >
+              {message.role === "assistant" ? <IconRepeat /> : <IconEdit />}
+            </ActionIcon>
             <ActionIcon
               className={cx(classes.actionIcon, classes.topOfMessage)}
               onClick={() => handleDeleteMessage(message)}
