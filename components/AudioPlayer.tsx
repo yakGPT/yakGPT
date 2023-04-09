@@ -88,7 +88,6 @@ const AudioStreamPlayer = () => {
       if (audioRef.current) {
         const audioSrc = audioRef.current.src;
         console.log("called for text", ttsText, "and voiceId", voiceId);
-        let audioStream: ReadableStream<Uint8Array>;
         try {
           const audioURL = await genAudio({
             text: ttsText,
