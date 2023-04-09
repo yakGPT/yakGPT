@@ -93,6 +93,7 @@ export default function ImageCard({
                   (max-width: 1200px) 50vw,
                   33vw"
           alt={title}
+          style={{ objectFit: "cover" }}
         />
       </div>
       <div className={classes.overlay} />
