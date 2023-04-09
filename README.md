@@ -11,6 +11,7 @@ A simple, locally running ChatGPT UI that makes your text generation faster and 
 - Faster than the official UI – connect directly to the API
 - Easy mic integration – no more typing!
 - Use your own API key – ensure your data privacy and security
+- Data submitted via the API is not used for training and stored for 30 days only
 - All state stored locally in localStorage – no analytics or external service calls
 - Access on https://yakgpt.vercel.app or run locally!
 
