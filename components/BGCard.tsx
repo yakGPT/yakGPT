@@ -8,6 +8,7 @@ import {
 } from "@mantine/core";
 import { MouseEventHandler } from "react";
 import Image from "next/image";
+import { useMediaQuery } from "@mantine/hooks";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -75,6 +76,8 @@ export default function ImageCard({
 }: ImageCardProps) {
   const { classes, theme } = useStyles();
 
+  const isMd = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
+
   return (
     <Card
       p="lg"
@@ -93,7 +96,7 @@ export default function ImageCard({
                   (max-width: 1200px) 50vw,
                   33vw"
           alt={title}
-          style={{ objectFit: "cover" }}
+          style={{ objectFit: isMd ? "cover" : undefined }}
         />
       </div>
       <div className={classes.overlay} />
