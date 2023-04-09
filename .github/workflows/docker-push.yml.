@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - docka
 
 jobs:
   build-and-push:
