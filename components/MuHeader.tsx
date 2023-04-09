@@ -12,7 +12,7 @@ import {
   px,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconPlus } from "@tabler/icons-react";
+import { IconBrandGithub, IconPlus } from "@tabler/icons-react";
 import { useChatStore } from "@/stores/ChatStore";
 import { getModelInfo, modelInfos } from "@/stores/Model";
 import { useRouter } from "next/router";
@@ -158,6 +158,16 @@ export default function MuHeader({ children }: any) {
                 stroke={1.5}
                 color={theme.colors.gray[6]}
               />
+            </ActionIcon>
+          </MediaQuery>
+          <MediaQuery smallerThan="sm" styles={{ display: "none", width: 0 }}>
+            <ActionIcon
+              sx={{ opacity: 0.8 }}
+              onClick={() => {
+                window.open("https://github.com/yakGPT/yakGPT", "_blank");
+              }}
+            >
+              <IconBrandGithub size={px("1.5rem")} />
             </ActionIcon>
           </MediaQuery>
         </Group>
