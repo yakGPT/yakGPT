@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from "uuid";
 import { Message } from "./Message";
 import { Chat } from "./Chat";
 import { getChatById, updateChatMessages } from "./utils";
-import { notifications } from "@mantine/notifications";
 import { NextRouter } from "next/router";
 import { APIState, ChatState, useChatStore } from "./ChatStore";
 import { submitMessage } from "./SubmitMessage";

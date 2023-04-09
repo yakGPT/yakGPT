@@ -9,13 +9,14 @@ import {
 } from "@mantine/core";
 
 import { useChatStore } from "@/stores/ChatStore";
-import { IconEdit, IconRepeat, IconSettings } from "@tabler/icons-react";
+import { IconEdit, IconRepeat, IconSettings, IconX } from "@tabler/icons-react";
 import MessageDisplay from "./MessageDisplay";
 
 import UserIcon from "./UserIcon";
 import AssistantIcon from "./AssistantIcon";
 import { Message } from "@/stores/Message";
 import {
+  delMessage,
   regenerateAssistantMessage,
   setEditingMessage,
 } from "@/stores/ChatActions";
@@ -100,10 +101,33 @@ const useStyles = createStyles((theme: MantineTheme) => ({
   messageDisplay: {
     marginLeft: theme.spacing.md,
   },
+  actionIconsWrapper: {
+    display: "flex",
+    flexDirection: "column-reverse",
+    alignItems: "flex-end",
+
+    [`@media (min-width: ${theme.breakpoints.sm})`]: {
+      marginTop: theme.spacing.sm,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    "> button": {
+      marginTop: theme.spacing.xs,
+      [`@media (min-width: ${theme.breakpoints.sm})`]: {
+        marginTop: 0,
+      },
+    },
+    "> button:not(:first-child)": {
+      marginTop: 0,
+      [`@media (min-width: ${theme.breakpoints.sm})`]: {
+        marginTop: 0,
+      },
+    },
+  },
   messageWrapper: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     width: "100%",
   },
   topOfMessage: {
@@ -123,6 +147,10 @@ export default function ChatDisplay({ message }: { message: Message }) {
     } else {
       setEditingMessage(message);
     }
+  };
+
+  const handleDeleteMessage = (message: Message) => {
+    delMessage(message);
   };
 
   return (
@@ -167,14 +195,22 @@ export default function ChatDisplay({ message }: { message: Message }) {
               className={classes.messageDisplay}
             />
           </div>
-
-          <ActionIcon
-            className={cx(classes.actionIcon, classes.topOfMessage)}
-            onClick={() => handleMainAction(message)}
-            color="gray"
-          >
-            {message.role === "assistant" ? <IconRepeat /> : <IconEdit />}
-          </ActionIcon>
+          <div className={classes.actionIconsWrapper}>
+            <ActionIcon
+              className={cx(classes.actionIcon, classes.topOfMessage)}
+              onClick={() => handleMainAction(message)}
+              color="gray"
+            >
+              {message.role === "assistant" ? <IconRepeat /> : <IconEdit />}
+            </ActionIcon>
+            <ActionIcon
+              className={cx(classes.actionIcon, classes.topOfMessage)}
+              onClick={() => handleDeleteMessage(message)}
+              color="gray"
+            >
+              <IconX />
+            </ActionIcon>
+          </div>
         </div>
       </div>
     </div>
