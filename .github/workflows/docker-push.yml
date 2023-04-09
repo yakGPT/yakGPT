@@ -28,3 +28,4 @@ jobs:
           context: .
           push: true
           tags: yakgpt/yakgpt:latest
+          platforms: linux/amd64,linux/arm64/v8
