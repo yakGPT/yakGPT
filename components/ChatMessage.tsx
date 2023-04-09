@@ -16,6 +16,7 @@ import UserIcon from "./UserIcon";
 import AssistantIcon from "./AssistantIcon";
 import { Message } from "@/stores/Message";
 import {
+  delMessage,
   regenerateAssistantMessage,
   setEditingMessage,
 } from "@/stores/ChatActions";
@@ -102,9 +103,26 @@ const useStyles = createStyles((theme: MantineTheme) => ({
   },
   actionIconsWrapper: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    marginTop: theme.spacing.sm,
+    flexDirection: "column-reverse",
+    alignItems: "flex-end",
+
+    [`@media (min-width: ${theme.breakpoints.sm})`]: {
+      marginTop: theme.spacing.sm,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    "> button": {
+      marginTop: theme.spacing.xs,
+      [`@media (min-width: ${theme.breakpoints.sm})`]: {
+        marginTop: 0,
+      },
+    },
+    "> button:not(:first-child)": {
+      marginTop: 0,
+      [`@media (min-width: ${theme.breakpoints.sm})`]: {
+        marginTop: 0,
+      },
+    },
   },
   messageWrapper: {
     display: "flex",
@@ -121,8 +139,6 @@ const useStyles = createStyles((theme: MantineTheme) => ({
 export default function ChatDisplay({ message }: { message: Message }) {
   const { classes, cx } = useStyles();
 
-  const setEditingMessage = useChatStore((state) => state.setEditingMessage);
-  const deleteMessage = useChatStore((state) => state.delMessage);
   const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
 
   const handleMainAction = (message: Message) => {
@@ -134,7 +150,7 @@ export default function ChatDisplay({ message }: { message: Message }) {
   };
 
   const handleDeleteMessage = (message: Message) => {
-    deleteMessage(message);
+    delMessage(message);
   };
 
   return (
