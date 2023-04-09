@@ -1,38 +1,47 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useChatStore } from "@/stores/ChatStore";
 import {
   ActionIcon,
   useMantineTheme,
   Textarea,
-  rem,
   Group,
   px,
 } from "@mantine/core";
-import { IconArrowRight, IconMicrophone, IconX } from "@tabler/icons-react";
+import { IconArrowRight, IconPlayerStop, IconX } from "@tabler/icons-react";
+import { useRouter } from "next/router";
+import { abortCurrentRequest, submitMessage } from "@/stores/SubmitMessage";
+import { addChat, setEditingMessage, update } from "@/stores/ChatActions";
 
-export default function ChatInput() {
+export default function ChatInput({ className }: { className?: string }) {
   const theme = useMantineTheme();
-  const [value, setValue] = useState("");
+  const router = useRouter();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const submitMessage = useChatStore((state) => state.submitMessage);
+  const value = useChatStore((state) => state.textInputValue);
+  const setValue = (value: string) => update({ textInputValue: value });
 
+  const activeChatId = useChatStore((state) => state.activeChatId);
   const apiState = useChatStore((state) => state.apiState);
-  const abortRequest = useChatStore((state) => state.abortCurrentRequest);
-
-  const setPushToTalkMode = useChatStore((state) => state.setPushToTalkMode);
-  const pushToTalkMode = useChatStore((state) => state.pushToTalkMode);
-
   const editingMessage = useChatStore((state) => state.editingMessage);
-  const setEditingMessage = useChatStore((state) => state.setEditingMessage);
+
+  useEffect(() => {
+    // Focus the input on first render
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const doSubmit = () => {
     if (apiState === "loading") {
-      abortRequest();
+      abortCurrentRequest();
       return;
     }
     if (editingMessage) {
       setEditingMessage(undefined);
+    }
+    if (!activeChatId) {
+      addChat(router);
     }
     submitMessage({
       id: editingMessage?.id || uuidv4(),
@@ -49,7 +58,11 @@ export default function ChatInput() {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     event.stopPropagation();
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (
+      !event.nativeEvent.isComposing &&
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
       event.preventDefault();
       doSubmit();
     }
@@ -59,12 +72,7 @@ export default function ChatInput() {
     setValue(event.target.value);
   };
 
-  const icon =
-    apiState === "loading" ? (
-      <IconX size={px("1.1rem")} stroke={1.5} />
-    ) : (
-      <IconArrowRight size={px("1.1rem")} stroke={1.5} />
-    );
+  const Icon = apiState === "loading" ? IconPlayerStop : IconArrowRight;
 
   // Whenever editingMessage changes, update the value
   useEffect(() => {
@@ -80,12 +88,13 @@ export default function ChatInput() {
     }
   }, [editingMessage]);
 
-  if (pushToTalkMode) return null;
-
   return (
     <Textarea
+      ref={inputRef}
+      className={className}
       autosize
       maxRows={5}
+      minRows={2}
       sx={{
         position: "relative",
       }}
@@ -95,31 +104,18 @@ export default function ChatInput() {
       onKeyUp={(e) => e.stopPropagation()}
       onChange={handleChange}
       value={value}
-      icon={
-        <ActionIcon
-          size={32}
-          radius="xl"
-          color={theme.primaryColor}
-          variant="filled"
-          onClick={() => setPushToTalkMode(true)}
-          sx={{ pointerEvents: "all" }}
-        >
-          <IconMicrophone size={px("1.1rem")} stroke={1.5} />
-        </ActionIcon>
-      }
       rightSection={
         <Group>
           {editingMessage && (
             <ActionIcon
               size={32}
-              radius="xl"
               color={"red"}
               variant="filled"
               onClick={() => cancelEdit()}
               sx={{
                 position: "absolute",
-                bottom: rem(7.5),
-                right: rem(7.5 + 5 + 32),
+                bottom: "2px",
+                right: "36px",
               }}
             >
               <IconX size={px("1.1rem")} stroke={1.5} />
@@ -127,13 +123,11 @@ export default function ChatInput() {
           )}
           <ActionIcon
             size={32}
-            radius="xl"
             color={apiState === "loading" ? "red" : theme.primaryColor}
-            variant="filled"
             onClick={() => doSubmit()}
-            sx={{ position: "absolute", bottom: rem(7.5), right: rem(7.5) }}
+            sx={{ position: "absolute", bottom: "2px", right: "2px" }}
           >
-            {icon}
+            <Icon size={px("1.1rem")} stroke={1.5} />
           </ActionIcon>
         </Group>
       }

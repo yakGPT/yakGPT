@@ -15,6 +15,8 @@ import { useMediaQuery } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useChatStore } from "@/stores/ChatStore";
 import { getModelInfo, modelInfos } from "@/stores/Model";
+import { useRouter } from "next/router";
+import { addChat, setNavOpened } from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -86,19 +88,17 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function HeaderMiddle({ children }: any) {
+export default function MuHeader({ children }: any) {
   const { classes, theme } = useStyles();
   const chats = useChatStore((state) => state.chats);
-  const activeChatId = useChatStore((state) => state.activeChatId);
+  const router = useRouter();
+  const activeChatId = router.query.chatId as string | undefined;
 
   const activeChat = chats.find((chat) => chat.id === activeChatId);
 
   const activeModel = useChatStore((state) => state.settingsForm.model);
 
   const navOpened = useChatStore((state) => state.navOpened);
-  const setNavOpened = useChatStore((state) => state.setNavOpened);
-
-  const addChat = useChatStore((state) => state.addChat);
 
   const isSmall = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
   const isKnownModel = modelInfos[activeModel] !== undefined;
@@ -146,7 +146,7 @@ export default function HeaderMiddle({ children }: any) {
           <MediaQuery largerThan="sm" styles={{ display: "none", width: 0 }}>
             <ActionIcon
               onClick={() => {
-                addChat();
+                addChat(router);
                 if (isSmall) {
                   setNavOpened(false);
                 }

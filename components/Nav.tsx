@@ -1,4 +1,5 @@
 import { useChatStore } from "@/stores/ChatStore";
+import { v4 as uuidv4 } from "uuid";
 import {
   ActionIcon,
   Box,
@@ -28,8 +29,16 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useRef, useState } from "react";
+import ClearChatsButton from "./ClearChatsButton";
 import KeyModal from "./KeyModal";
 import SettingsModal from "./SettingsModal";
+import { useRouter } from "next/router";
+import {
+  clearChats,
+  deleteChat,
+  setNavOpened,
+  updateChat,
+} from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -123,6 +132,9 @@ const useStyles = createStyles((theme) => ({
 export default function NavbarSimple() {
   const { classes, cx, theme } = useStyles();
 
+  const router = useRouter();
+  const activeChatId = router.query.chatId as string | undefined;
+
   const [openedKeyModal, { open: openKeyModal, close: closeKeyModal }] =
     useDisclosure(false);
   const [
@@ -132,16 +144,8 @@ export default function NavbarSimple() {
   const [openedTitleModal, { open: openTitleModal, close: closeTitleModal }] =
     useDisclosure(false);
 
-  const addChat = useChatStore((state) => state.addChat);
-  const deleteChat = useChatStore((state) => state.deleteChat);
-
   const chats = useChatStore((state) => state.chats);
-  const setActiveChat = useChatStore((state) => state.setActiveChat);
-  const activeChatId = useChatStore((state) => state.activeChatId);
-  const updateChat = useChatStore((state) => state.updateChat);
-
   const navOpened = useChatStore((state) => state.navOpened);
-  const setNavOpened = useChatStore((state) => state.setNavOpened);
 
   const [editedTitle, setEditedTitle] = useState("");
 
@@ -169,7 +173,7 @@ export default function NavbarSimple() {
         href="#"
         onClick={(event) => {
           event.preventDefault();
-          setActiveChat(chat.id);
+          router.push(`/chat/${chat.id}`);
           if (isSmall) {
             setNavOpened(false);
           }
@@ -189,10 +193,7 @@ export default function NavbarSimple() {
               onClick={(event) => {
                 event.preventDefault();
                 deleteChat(chat.id);
-                // If there are no more chats, create one
-                if (chats.length === 1) {
-                  addChat();
-                }
+                router.push("/");
               }}
               style={{
                 position: "absolute",
@@ -267,7 +268,7 @@ export default function NavbarSimple() {
             className={classes.link}
             onClick={(event) => {
               event.preventDefault();
-              addChat();
+              router.push("/");
             }}
           >
             <IconPlus className={classes.linkIcon} stroke={1.5} />
@@ -300,6 +301,16 @@ export default function NavbarSimple() {
         </Navbar.Section>
       </MediaQuery>
       <Navbar.Section className={classes.footer}>
+        {links?.length > 0 && (
+          <ClearChatsButton
+            classes={classes}
+            clearHandler={() => {
+              clearChats();
+              router.push("/");
+            }}
+          />
+        )}
+
         <a
           href="#"
           className={classes.link}
@@ -311,7 +322,7 @@ export default function NavbarSimple() {
           </span>
         </a>
 
-        <Modal opened={openedKeyModal} onClose={closeKeyModal} title="API Key">
+        <Modal opened={openedKeyModal} onClose={closeKeyModal} title="API Keys">
           <KeyModal close={closeKeyModal} />
         </Modal>
 
@@ -326,7 +337,7 @@ export default function NavbarSimple() {
           }}
         >
           <IconKey className={classes.linkIcon} stroke={1.5} />
-          <span>API Key</span>
+          <span>API Keys</span>
         </a>
 
         <Modal
