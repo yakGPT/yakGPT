@@ -63,22 +63,25 @@ To utilize YakGPT, you'll need to acquire an API key for OpenAI. The app should 
 If you want the keys to persist across app builds, you can add it to the .env.local.
 
 ```
-echo "NEXT_PUBLIC_OPENAI_API_KEY=<your-open-ai-key-here>" > .env.local
-echo "NEXT_PUBLIC_11LABS_API_KEY=<your-eleven-labs-key-here>" >> .env.local
+$ echo "NEXT_PUBLIC_OPENAI_API_KEY=<your-open-ai-key-here>" > .env.local
+$ echo "NEXT_PUBLIC_11LABS_API_KEY=<your-eleven-labs-key-here>" >> .env.local
 ```
 
 ## 🐳 Docker
 
-To build a Docker image, run:
+### To use the pre-built Docker image from Docker Hub, run:
 
 ```
-docker build -t yakgpt:latest .
+$ docker run -it -p 3000:3000 yakgpt/yakgpt:latest
 ```
 
-To run in a container:
+---
+
+### To build the Docker image yourself, run:
 
 ```
-docker run -it -p 3000:3000 yakgpt:latest
+$ docker build -t yakgpt:latest .
+$ docker run -it -p 3000:3000 yakgpt:latest
 ```
 
 ## 🎤 Microphone Integration
