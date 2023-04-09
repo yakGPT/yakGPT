@@ -1,22 +1,48 @@
 import { useEffect, useRef, useState } from "react";
-import { genAudio } from "@/stores/AzureSDK";
+import { genAudio as genAudioAzure } from "@/stores/AzureSDK";
+import { genAudio as genAudio11Labs } from "@/stores/ElevenLabs";
 import { useChatStore } from "@/stores/ChatStore";
 import { usePlayerStore } from "@/stores/PlayerStore";
 import { notifications } from "@mantine/notifications";
 
-const DEFAULT_VOICE = "en-US-JaneNeural";
+const DEFAULT_AZURE_VOICE = "en-US-JaneNeural";
+const DEFAULT_11LABS_VOICE = "21m00Tcm4TlvDq8ikWAM";
 
 const AudioStreamPlayer = () => {
   const audioRef = useRef(new Audio());
-  const apiKeyAzure = useChatStore((state) => state.apiKeyAzure);
-  const apiKeyAzureRegion = useChatStore((state) => state.apiKeyAzureRegion);
+
+  const modelChoiceTTS = useChatStore((state) => state.modelChoiceTTS);
+  const pickedState = useChatStore((state) => ({
+    apiKeyAzure: state.apiKeyAzure,
+    apiKeyAzureRegion: state.apiKeyAzureRegion,
+    apiKey11Labs: state.apiKey11Labs,
+    settingsForm: {
+      voice_id: state.settingsForm.voice_id,
+      voice_id_azure: state.settingsForm.voice_id_azure,
+      spoken_language_style: state.settingsForm.spoken_language_style,
+    },
+  }));
+
+  let apiKey: string | undefined;
+  let apiKeyRegion: string | undefined;
+  let voiceId: string | undefined;
+  let voiceStyle: string | undefined;
+  let genAudio: typeof genAudioAzure | typeof genAudio11Labs;
+
+  if (modelChoiceTTS === "azure") {
+    apiKey = pickedState.apiKeyAzure;
+    apiKeyRegion = pickedState.apiKeyAzureRegion;
+    voiceId = pickedState.settingsForm.voice_id_azure || DEFAULT_AZURE_VOICE;
+    voiceStyle = pickedState.settingsForm.spoken_language_style;
+    genAudio = genAudioAzure;
+  } else {
+    apiKey = pickedState.apiKey11Labs;
+    voiceId = pickedState.settingsForm.voice_id || DEFAULT_11LABS_VOICE;
+    genAudio = genAudio11Labs;
+  }
+
   const ttsText = useChatStore((state) => state.ttsText);
   const ttsID = useChatStore((state) => state.ttsID);
-  const voiceId =
-    useChatStore((state) => state.settingsForm.voice_id_azure) || DEFAULT_VOICE;
-  const voiceStyle = useChatStore(
-    (state) => state.settingsForm.spoken_language_style
-  );
 
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
 
@@ -51,7 +77,7 @@ const AudioStreamPlayer = () => {
     }
     const fetchAndPlayAudioStream = async () => {
       if (isPlaying) setIsPlaying(false);
-      if (!apiKeyAzure || !apiKeyAzureRegion) {
+      if (!apiKey) {
         notifications.show({
           title: "Azure Speech API keys not set",
           message: "Please set the Azure Speech API keys in the settings.",
@@ -64,18 +90,16 @@ const AudioStreamPlayer = () => {
         console.log("called for text", ttsText, "and voiceId", voiceId);
         let audioStream: ReadableStream<Uint8Array>;
         try {
-          const audioData = await genAudio(
-            ttsText,
-            apiKeyAzure,
-            apiKeyAzureRegion,
-            voiceId,
-            voiceStyle
-          );
-          if (audioData) {
-            const blob = new Blob([audioData], { type: "audio/mpeg" });
-            const url = URL.createObjectURL(blob);
-            console.log("url", url);
-            setAudioSrc(url);
+          const audioURL = await genAudio({
+            text: ttsText,
+            key: apiKey,
+            region: apiKeyRegion,
+            voice: voiceId,
+            style: voiceStyle,
+          });
+          if (audioURL) {
+            console.log("url", audioURL);
+            setAudioSrc(audioURL);
           }
         } catch (error) {
           console.error(error);
@@ -93,7 +117,7 @@ const AudioStreamPlayer = () => {
 
     fetchAndPlayAudioStream();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ttsText, ttsID, setIsPlaying, apiKeyAzure, apiKeyAzureRegion]);
+  }, [ttsText, ttsID, setIsPlaying, apiKey, apiKeyRegion]);
 
   return <audio ref={audioRef} playsInline />;
 };

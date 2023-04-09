@@ -27,6 +27,53 @@ export type Voice = {
 };
 
 export const genAudio = async ({
+  text,
+  key,
+  region,
+  voice,
+  style,
+}: {
+  text: string;
+  key: string;
+  region?: string;
+  voice?: string;
+  style?: string;
+}): Promise<string | undefined> => {
+  try {
+    const response = await fetch(`${BASE_URL}/text-to-speech/${voice}`, {
+      method: "POST",
+      headers: {
+        Accept: "audio/mpeg",
+        "xi-api-key": key,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text }),
+    });
+    if (!response.ok || !response.body) {
+      const readBody = await response.text();
+      let message = readBody;
+      try {
+        const json = JSON.parse(readBody);
+        message = json.detail.message;
+      } catch (e) {}
+      notifications.show({
+        title: "Error",
+        message,
+        color: "red",
+      });
+      throw new Error(
+        `Network response was not ok ${response.ok} ${message} ${response.status}`
+      );
+    }
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const genAudioStream = async ({
   apiKey,
   text,
   voiceId,
