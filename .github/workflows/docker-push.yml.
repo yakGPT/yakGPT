@@ -3,8 +3,7 @@ name: Docker Push
 on:
   push:
     branches:
-      - master
-      - docka
+      - main
 
 jobs:
   build-and-push:
