@@ -69,7 +69,7 @@ $ echo "NEXT_PUBLIC_11LABS_API_KEY=<your-eleven-labs-key-here>" >> .env.local
 
 ## 🐳 Docker
 
-### To use the pre-built Docker image from Docker Hub, run:
+### To use the pre-built Docker image from Docker Hub (only for amd64), run:
 
 ```
 $ docker run -it -p 3000:3000 yakgpt/yakgpt:latest
@@ -77,7 +77,7 @@ $ docker run -it -p 3000:3000 yakgpt/yakgpt:latest
 
 ---
 
-### To build the Docker image yourself, run:
+### To build the Docker image yourself (such as if you're on arm64), run:
 
 ```
 $ docker build -t yakgpt:latest .
