@@ -101,7 +101,6 @@ export const submitMessage = async (message: Message) => {
     currentAbortController: abortController,
     ttsID: assistantMsgId,
     ttsText: "",
-    ttsSentences: [],
   }));
 
   // ASSISTANT REQUEST

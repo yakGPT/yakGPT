@@ -79,7 +79,6 @@ const chunkify = (text: string | undefined) => {
 };
 
 export const initPlayback = () => {
-  // Start checker timeout
   const checker = async () => {
     const { apiState, ttsText, playerApiState, playerAudioQueue } = get();
     const chunks = chunkify(ttsText);
