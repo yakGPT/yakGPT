@@ -142,9 +142,6 @@ export const regenerateAssistantMessage = (message: Message) => {
   }
 };
 
-export const setTtsText = (ttsText: string | undefined) =>
-  set((state) => ({ ttsText }));
-
 export const refreshModels = async () => {
   const { apiKey } = get();
   // Load OpenAI models

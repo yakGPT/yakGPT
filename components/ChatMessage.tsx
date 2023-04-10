@@ -117,7 +117,7 @@ const useStyles = createStyles((theme: MantineTheme) => ({
         marginTop: 0,
       },
     },
-    "> button:not(:first-child)": {
+    "> button:not(:first-of-type)": {
       marginTop: 0,
       [`@media (min-width: ${theme.breakpoints.sm})`]: {
         marginTop: 0,
