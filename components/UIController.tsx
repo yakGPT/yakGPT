@@ -10,7 +10,6 @@ import {
   IconVolume,
 } from "@tabler/icons-react";
 import ChatTextInput from "./ChatTextInput";
-import { usePlayerStore } from "@/stores/PlayerStore";
 import { useRouter } from "next/router";
 import UIControllerSettings from "./UIControllerSettings";
 import * as OpusRecorder from "@/stores/RecorderActions";
@@ -20,6 +19,7 @@ import {
   setPlayerMode,
   setPushToTalkMode,
 } from "@/stores/ChatActions";
+import { toggleAudio } from "@/stores/PlayerActions";
 
 const styles = createStyles((theme: MantineTheme) => ({
   container: {
@@ -71,12 +71,9 @@ const PlayerControls = () => {
   const { classes } = styles();
 
   const playerMode = useChatStore((state) => state.playerMode);
-
   const PlayerToggleIcon = playerMode ? IconVolumeOff : IconVolume;
 
-  const isPlaying = usePlayerStore((state) => state.isPlaying);
-  const setIsPlaying = usePlayerStore((state) => state.setIsPlaying);
-
+  const isPlaying = useChatStore((state) => state.playerState === "playing");
   const PlayPauseIcon = isPlaying ? IconPlayerPause : IconPlayerPlay;
 
   return (
@@ -85,7 +82,7 @@ const PlayerControls = () => {
         sx={{ height: 36, borderRadius: "8px 0px 0px 0px" }}
         compact
         variant={playerMode ? "filled" : "light"}
-        onClick={() => setIsPlaying(!isPlaying)}
+        onClick={() => toggleAudio()}
       >
         {playerMode && <PlayPauseIcon size={20} />}
       </Button>
@@ -117,10 +114,6 @@ const ChatInput = () => {
   const activeChatId = useChatStore((state) => state.activeChatId);
   const showTextDuringPTT = useChatStore((state) => state.showTextDuringPTT);
   const showTextInput = !pushToTalkMode || showTextDuringPTT || editingMessage;
-
-  console.log("!pushToTalkMode :>> ", !pushToTalkMode);
-  console.log("showTextDuringPTT :>> ", showTextDuringPTT);
-  console.log("editingMessage :>> ", editingMessage);
 
   const modelChoiceSTT = useChatStore((state) => state.modelChoiceSTT);
   const Recorder = modelChoiceSTT === "azure" ? AzureRecorder : OpusRecorder;

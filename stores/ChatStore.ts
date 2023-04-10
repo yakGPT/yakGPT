@@ -3,6 +3,7 @@ import { Message } from "./Message";
 import { persist } from "zustand/middleware";
 import { Chat } from "./Chat";
 import { SpeechRecognizer } from "microsoft-cognitiveservices-speech-sdk";
+import type { AudioChunk } from "./PlayerActions";
 
 export type APIState = "idle" | "loading" | "error";
 export type AudioState = "idle" | "recording" | "transcribing" | "processing";
@@ -20,6 +21,11 @@ export const excludeFromState = [
   "ttsID",
   "ttsText",
   "activeChatId",
+  "playerRef",
+  "playerRefInit",
+  "playerState",
+  "playerAudioQueue",
+  "playerIdx",
 ];
 
 interface SettingsForm {
@@ -48,38 +54,6 @@ interface SettingsForm {
   spoken_language_style: string;
 }
 
-export interface ChatState {
-  apiState: APIState;
-  apiKey: string | undefined;
-  apiKey11Labs: string | undefined;
-  apiKeyAzure: string | undefined;
-  apiKeyAzureRegion: string | undefined;
-  chats: Chat[];
-  activeChatId: string | undefined;
-  colorScheme: "light" | "dark";
-  currentAbortController: AbortController | undefined;
-  settingsForm: SettingsForm;
-  defaultSettings: SettingsForm;
-  navOpened: boolean;
-  pushToTalkMode: boolean;
-  recorder: MediaRecorder | undefined;
-  recognizer: SpeechRecognizer | undefined;
-  recorderTimeout: ReturnType<typeof setTimeout> | undefined;
-  submitNextAudio: boolean;
-  audioState: AudioState;
-  audioChunks: BlobPart[];
-  playerMode: boolean;
-  editingMessage: Message | undefined;
-  ttsID: string | undefined;
-  ttsText: string | undefined;
-  showTextDuringPTT: boolean;
-  autoSendStreamingSTT: boolean;
-  modelChoicesChat: string[] | undefined;
-  modelChoiceTTS: string | undefined;
-  modelChoiceSTT: string | undefined;
-  textInputValue: string;
-}
-
 export const defaultSettings = {
   model: "gpt-3.5-turbo",
   temperature: 1,
@@ -105,12 +79,54 @@ export const defaultSettings = {
   spoken_language_style: "friendly",
 };
 
+export interface ChatState {
+  apiState: APIState;
+  apiKey: string | undefined;
+  apiKey11Labs: string | undefined;
+  apiKeyAzure: string | undefined;
+  apiKeyAzureRegion: string | undefined;
+
+  chats: Chat[];
+  activeChatId: string | undefined;
+  colorScheme: "light" | "dark";
+  currentAbortController: AbortController | undefined;
+  settingsForm: SettingsForm;
+  defaultSettings: SettingsForm;
+  navOpened: boolean;
+
+  pushToTalkMode: boolean;
+  recorder: MediaRecorder | undefined;
+  recognizer: SpeechRecognizer | undefined;
+  recorderTimeout: ReturnType<typeof setTimeout> | undefined;
+  submitNextAudio: boolean;
+  audioState: AudioState;
+  audioChunks: BlobPart[];
+  playerMode: boolean;
+  editingMessage: Message | undefined;
+
+  ttsID: string | undefined;
+  ttsText: string | undefined;
+  playerRef: React.MutableRefObject<HTMLAudioElement | null>;
+  playerRefInit: boolean;
+  playerIdx: number;
+  playerState: "playing" | "paused" | "idle";
+  playerApiState: APIState;
+  playerAudioQueue: AudioChunk[];
+
+  showTextDuringPTT: boolean;
+  autoSendStreamingSTT: boolean;
+  modelChoicesChat: string[] | undefined;
+  modelChoiceTTS: string | undefined;
+  modelChoiceSTT: string | undefined;
+  textInputValue: string;
+}
 export const initialState = {
   apiState: "idle" as APIState,
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || undefined,
   apiKey11Labs: process.env.NEXT_PUBLIC_11LABS_API_KEY || undefined,
   apiKeyAzure: process.env.NEXT_PUBLIC_AZURE_API_KEY || undefined,
   apiKeyAzureRegion: process.env.NEXT_PUBLIC_AZURE_REGION || undefined,
+
   chats: [],
   activeChatId: undefined,
   colorScheme: "light" as "light" | "dark",
@@ -121,6 +137,7 @@ export const initialState = {
   playerMode: false,
   pushToTalkMode: false,
   editingMessage: undefined,
+
   recorder: undefined,
   recognizer: undefined,
   recorderTimeout: undefined,
@@ -130,6 +147,13 @@ export const initialState = {
   showTextDuringPTT: true,
   ttsID: undefined,
   ttsText: undefined,
+  playerRef: { current: null },
+  playerRefInit: false,
+  playerIdx: -1,
+  playerState: "idle",
+  playerApiState: "idle",
+  playerAudioQueue: [],
+
   autoSendStreamingSTT: true,
   modelChoicesChat: undefined,
   modelChoiceChat: undefined,

@@ -97,7 +97,11 @@ export const submitMessage = async (message: Message) => {
   const settings = get().settingsForm;
 
   const abortController = new AbortController();
-  set((state) => ({ currentAbortController: abortController }));
+  set((state) => ({
+    currentAbortController: abortController,
+    ttsID: assistantMsgId,
+    ttsText: "",
+  }));
 
   // ASSISTANT REQUEST
   await streamCompletion(
@@ -107,6 +111,7 @@ export const submitMessage = async (message: Message) => {
     abortController,
     (content) => {
       set((state) => ({
+        ttsText: (state.ttsText || "") + content,
         chats: updateChatMessages(state.chats, chat.id, (messages) => {
           const assistantMessage = messages.find(
             (m) => m.id === assistantMsgId
@@ -121,10 +126,6 @@ export const submitMessage = async (message: Message) => {
     (tokensUsed) => {
       set((state) => ({
         apiState: "idle",
-        ttsID: assistantMsgId,
-        ttsText: state.chats
-          .find((c) => c.id === chat.id)
-          ?.messages.find((m) => m.id === assistantMsgId)?.content,
         chats: updateChatMessages(state.chats, chat.id, (messages) => {
           const assistantMessage = messages.find(
             (m) => m.id === assistantMsgId

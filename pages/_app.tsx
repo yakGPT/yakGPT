@@ -15,8 +15,7 @@ import Nav from "@/components/Nav";
 import { useEffect, useState } from "react";
 import UIController from "@/components/UIController";
 import { setColorScheme } from "@/stores/ChatActions";
-import ElevenLabsPlayer from "@/components/ElevenLabsPlayer";
-import AzurePlayer from "@/components/AzurePlayer";
+import AudioPlayer from "@/components/AudioPlayer";
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
@@ -31,7 +30,6 @@ export default function App(props: AppProps) {
 
   const apiKey = useChatStore((state) => state.apiKey);
   const playerMode = useChatStore((state) => state.playerMode);
-  const modelChoiceTTS = useChatStore((state) => state.modelChoiceTTS);
 
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -43,9 +41,6 @@ export default function App(props: AppProps) {
   if (!isHydrated) {
     return <div>Loading...</div>;
   }
-
-  const AudioPlayer =
-    modelChoiceTTS === "azure" ? AzurePlayer : ElevenLabsPlayer;
 
   return (
     <>

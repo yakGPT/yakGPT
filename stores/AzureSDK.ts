@@ -51,6 +51,8 @@ function createSSML(
 ): string {
   let expressAs = "";
 
+  text = removeEmoji(escapeChars(text));
+
   if (style) {
     expressAs = `<mstts:express-as style="${style}">${text}</mstts:express-as>`;
   } else {
@@ -68,16 +70,22 @@ function createSSML(
                 </speak>`;
 }
 
-export async function genAudio(
-  text: string,
-  subscriptionKey: string,
-  serviceRegion?: string,
-  voice?: string,
-  style?: string
-): Promise<ArrayBuffer | null> {
+export async function genAudio({
+  text,
+  key,
+  region,
+  voice,
+  style,
+}: {
+  text: string;
+  key: string;
+  region?: string;
+  voice?: string;
+  style?: string;
+}): Promise<string | null> {
   var speechConfig = SpeechSDK.SpeechConfig.fromSubscription(
-    subscriptionKey,
-    serviceRegion || "eastus"
+    key,
+    region || "eastus"
   );
   speechConfig.speechSynthesisOutputFormat =
     SpeechSDK.SpeechSynthesisOutputFormat.Audio16Khz64KBitRateMonoMp3;
@@ -87,7 +95,7 @@ export async function genAudio(
 
   const ssmlText = createSSML(text, voice, style);
 
-  const resultPromise = new Promise<ArrayBuffer | null>((resolve) => {
+  const resultPromise = new Promise<string | null>((resolve) => {
     synthesizer.speakSsmlAsync(
       ssmlText,
       function (result) {
@@ -96,10 +104,12 @@ export async function genAudio(
           result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted
         ) {
           const audioData = result.audioData;
-          console.log(`Audio data byte size: ${audioData.byteLength}.`);
-          resolve(audioData);
+          const blob = new Blob([audioData], { type: "audio/mpeg" });
+          const url = URL.createObjectURL(blob);
+
+          resolve(url);
         } else if (result.reason === SpeechSDK.ResultReason.Canceled) {
-          console.log("Speech synthesis canceled.");
+          console.log("Speech synthesis canceled.", result);
           resolve(null);
         }
       },
@@ -115,13 +125,13 @@ export async function genAudio(
 }
 
 export async function getVoices(
-  subscriptionKey: string,
-  serviceRegion?: string
+  key: string,
+  region?: string
 ): Promise<SpeechSDK.VoiceInfo[] | null> {
   try {
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(
-      subscriptionKey,
-      serviceRegion || "eastus"
+      key,
+      region || "eastus"
     );
     // @ts-ignore - null is for audioConfig to prevent it from auto-speaking
     const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
@@ -132,5 +142,20 @@ export async function getVoices(
     return null;
   }
 }
+
+const removeEmoji = (text: string) => {
+  return text.replace(
+    /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
+    ""
+  );
+};
+
+const escapeChars = (text: string) => {
+  text = text.replace(/"/g, "&quot;");
+  text = text.replace(/&/g, "&amp;");
+  text = text.replace(/</g, "&lt;");
+  text = text.replace(/>/g, "&gt;");
+  return text;
+};
 
 export type Voice = SpeechSDK.VoiceInfo;
