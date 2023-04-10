@@ -106,7 +106,6 @@ export interface ChatState {
 
   ttsID: string | undefined;
   ttsText: string | undefined;
-  ttsSentences: string[] | undefined;
   playerRef: React.MutableRefObject<HTMLAudioElement | null>;
   playerRefInit: boolean;
   playerIdx: number;
@@ -148,7 +147,6 @@ export const initialState = {
   showTextDuringPTT: true,
   ttsID: undefined,
   ttsText: undefined,
-  ttsSentences: undefined,
   playerRef: { current: null },
   playerRefInit: false,
   playerIdx: -1,
