@@ -23,23 +23,14 @@ const AudioStreamPlayer = () => {
     },
   }));
 
-  let apiKey: string | undefined;
-  let apiKeyRegion: string | undefined;
-  let voiceId: string | undefined;
-  let voiceStyle: string | undefined;
-  let genAudio: typeof genAudioAzure | typeof genAudio11Labs;
-
-  if (modelChoiceTTS === "azure") {
-    apiKey = pickedState.apiKeyAzure;
-    apiKeyRegion = pickedState.apiKeyAzureRegion;
-    voiceId = pickedState.settingsForm.voice_id_azure || DEFAULT_AZURE_VOICE;
-    voiceStyle = pickedState.settingsForm.spoken_language_style;
-    genAudio = genAudioAzure;
-  } else {
-    apiKey = pickedState.apiKey11Labs;
-    voiceId = pickedState.settingsForm.voice_id || DEFAULT_11LABS_VOICE;
-    genAudio = genAudio11Labs;
-  }
+  const isAzure = modelChoiceTTS === "azure";
+  const apiKey = isAzure ? pickedState.apiKeyAzure : pickedState.apiKey11Labs;
+  const apiKeyRegion = isAzure ? pickedState.apiKeyAzureRegion : undefined;
+  const voiceId = isAzure
+    ? pickedState.settingsForm.voice_id_azure || DEFAULT_AZURE_VOICE
+    : pickedState.settingsForm.voice_id || DEFAULT_11LABS_VOICE;
+  const voiceStyle = pickedState.settingsForm.spoken_language_style;
+  const genAudio = isAzure ? genAudioAzure : genAudio11Labs;
 
   const ttsText = useChatStore((state) => state.ttsText);
   const ttsID = useChatStore((state) => state.ttsID);
@@ -64,6 +55,8 @@ const AudioStreamPlayer = () => {
       audioRef.current.src = audioSrc;
     }
   }, [audioSrc]);
+
+  console.log("Got render", ttsText, ttsID, apiKey, apiKeyRegion, voiceId);
 
   const initialRender = useRef(true);
   useEffect(() => {
