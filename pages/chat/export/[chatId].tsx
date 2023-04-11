@@ -2,6 +2,7 @@ import { Chat } from "@/stores/Chat";
 import { useChatStore } from "@/stores/ChatStore";
 import { Message } from "@/stores/Message";
 import { Container, Text, Title } from "@mantine/core";
+import { usePrevious } from "@mantine/hooks";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
@@ -20,20 +21,26 @@ export default function ChatDownloadAsMarkdown() {
   const [error, setError] = useState<string>();
   const [objectURL, setObjectURL] = useState<string>();
   const hasDownloaded = useRef(false);
-
+  const previousChat = usePrevious(chat);
   useEffect(() => {
     const chat = chats.find(({ id }) => id === chatId);
     setChat(chat);
     (async () => {
-      if (chat && !hasDownloaded.current) {
+      if (chat && linkRef.current && chat !== previousChat) {
         try {
-          const url = await downloadFile(chat, window);
+          const url = createDownload(
+            chat,
+            linkRef.current,
+            !hasDownloaded.current
+          );
           hasDownloaded.current = true;
           setObjectURL(url);
         } catch {
           hasDownloaded.current = false;
+          setError("Unknown error.");
         }
       } else if (error) {
+        setObjectURL(undefined);
         hasDownloaded.current = false;
         if (chatId?.length) {
           setError("This chat ID does not exist.");
@@ -47,9 +54,9 @@ export default function ChatDownloadAsMarkdown() {
         }
       };
     })();
-  }, [chats, chatId, error, objectURL]);
+  }, [chats, chatId, previousChat, error, objectURL]);
 
-  const objectURLRef = useRef<string>();
+  const linkRef = useRef<HTMLAnchorElement>(null);
 
   return (
     <Container py="xl">
@@ -58,12 +65,12 @@ export default function ChatDownloadAsMarkdown() {
       ) : (
         <>
           <Text>Downloading chat {chatName(chat)}...</Text>
-          {objectURL && (
-            <Text>
-              If your download does not start, try{" "}
-              <a href={objectURL}>clicking here</a>
-            </Text>
-          )}
+          <Text>
+            If your download does not start, try{" "}
+            <a href={objectURL} ref={linkRef} download={chatName(chat)}>
+              clicking here
+            </a>
+          </Text>
         </>
       )}
     </Container>
@@ -75,16 +82,28 @@ const formatMessage = (msg: Message): string => {
     ? `## User:
 ${msg.content}
 
+---
+
 `
     : `## Chatbot (${msg.role}):
 ${msg.content}
+
+---
 
 `;
 };
 
 const chatName = (chat?: Chat) => (chat ? `${chat.title ?? chat.id}` : "");
 
-const downloadFile = async (chat: Chat, window: Window): Promise<string> => {
+/**
+ * Clicking the reffed HTML link from inside useEffect does not work.
+ * it needs to be done here.
+ */
+const createDownload = (
+  chat: Chat,
+  link: HTMLAnchorElement,
+  triggerDownload = false
+): string => {
   const result = [];
   for (const message of chat.messages) {
     try {
@@ -98,19 +117,11 @@ const downloadFile = async (chat: Chat, window: Window): Promise<string> => {
   }
 
   const blob = new Blob(result, { type: "text/markdown" });
-  const downloadURI = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  window.document.body.appendChild(a);
-  a.href = downloadURI;
-  a.style.display = "none";
-  a.download = chatName(chat);
-  //This downloads the file.
-  a.click();
-  // Doing nothing with the result, just want to make sure that we pause long enough before removing the element.
-  // This might be unneeded in most scenarios.
-  await fetch(downloadURI);
-  //Don't revoke the URL, instead provide a fallback link.
-  //URL.revokeObjectURL(downloadURI);
-  a.remove();
-  return downloadURI;
+  const url = URL.createObjectURL(blob);
+  if (triggerDownload) {
+    link.download = chatName(chat);
+    link.href = url;
+    link.click();
+  }
+  return url;
 };

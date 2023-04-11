@@ -1,5 +1,10 @@
+import {
+  clearChats,
+  deleteChat,
+  setNavOpened,
+  updateChat,
+} from "@/stores/ChatActions";
 import { useChatStore } from "@/stores/ChatStore";
-import { v4 as uuidv4 } from "uuid";
 import {
   ActionIcon,
   Box,
@@ -29,17 +34,11 @@ import {
   IconSun,
   IconTrash,
 } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import ClearChatsButton from "./ClearChatsButton";
 import KeyModal from "./KeyModal";
 import SettingsModal from "./SettingsModal";
-import { useRouter } from "next/router";
-import {
-  clearChats,
-  deleteChat,
-  setNavOpened,
-  updateChat,
-} from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -368,6 +367,7 @@ export default function NavbarSimple() {
           opened={openedSettingsModal}
           onClose={closeSettingsModal}
           title="Settings"
+          size={"auto"}
         >
           <SettingsModal close={closeSettingsModal} />
         </Modal>

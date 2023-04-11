@@ -1,26 +1,35 @@
+import * as Azure from "@/stores/AzureSDK";
+import { refreshModels, updateSettingsForm } from "@/stores/ChatActions";
 import { useChatStore } from "@/stores/ChatStore";
+import * as ElevenLabs from "@/stores/ElevenLabs";
 import {
-  TextInput,
+  Accordion,
+  Autocomplete,
+  Box,
   Button,
   Group,
-  Box,
-  Text,
-  Slider,
   Select,
-  Tabs,
-  Autocomplete,
+  Slider,
   Switch,
-  px,
-  Accordion,
+  Tabs,
+  Text,
+  TextInput,
   Title,
+  createStyles,
+  getStylesRef,
+  px,
 } from "@mantine/core";
-import ISO6391 from "iso-639-1";
 import { useForm } from "@mantine/form";
-import { IconBraces, IconMicrophone, IconSettings } from "@tabler/icons-react";
+import { useMediaQuery } from "@mantine/hooks";
+import {
+  IconBraces,
+  IconMicrophone,
+  IconPackageExport,
+  IconSettings,
+} from "@tabler/icons-react";
+import ISO6391 from "iso-639-1";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import * as ElevenLabs from "@/stores/ElevenLabs";
-import { refreshModels, updateSettingsForm } from "@/stores/ChatActions";
-import * as Azure from "@/stores/AzureSDK";
 import { azureCandidateLanguages } from "./azureLangs";
 
 function getLanguages() {
@@ -30,6 +39,46 @@ function getLanguages() {
     value: code,
   }));
 }
+
+const useStyles = createStyles((theme) => ({
+  link: {
+    ...theme.fn.focusStyles(),
+    display: "flex",
+    alignItems: "center",
+    textDecoration: "none",
+    fontSize: theme.fontSizes.sm,
+    color:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[1]
+        : theme.colors.gray[7],
+    padding: `${theme.spacing.xs} ${theme.spacing.xs}`,
+    borderRadius: theme.radius.sm,
+    fontWeight: 500,
+    // im a noob
+    flexGrow: "1 !important",
+
+    "&:hover": {
+      backgroundColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[6]
+          : theme.colors.gray[0],
+      color: theme.colorScheme === "dark" ? theme.white : theme.black,
+
+      [`& .${getStylesRef("icon")}`]: {
+        color: theme.colorScheme === "dark" ? theme.white : theme.black,
+      },
+    },
+  },
+
+  linkIcon: {
+    ref: getStylesRef("icon"),
+    color:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[2]
+        : theme.colors.gray[6],
+    marginRight: theme.spacing.sm,
+  },
+}));
 
 export default function SettingsModal({ close }: { close: () => void }) {
   const modelChoicesChat =
@@ -112,6 +161,10 @@ export default function SettingsModal({ close }: { close: () => void }) {
     return acc;
   }, {} as Record<string, string>);
 
+  const { theme, classes } = useStyles();
+
+  const isMd = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
+
   return (
     <Box mx="auto">
       <form
@@ -136,6 +189,12 @@ export default function SettingsModal({ close }: { close: () => void }) {
             </Tabs.Tab>
             <Tabs.Tab value="11labs" icon={<IconBraces size={px("0.8rem")} />}>
               ElevenLabs
+            </Tabs.Tab>
+            <Tabs.Tab
+              value="importexport"
+              icon={<IconBraces size={px("0.8rem")} />}
+            >
+              Import / Export
             </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="openai" pt="xs">
@@ -371,6 +430,16 @@ export default function SettingsModal({ close }: { close: () => void }) {
                 value: voice.voice_id,
               }))}
             ></Select>
+          </Tabs.Panel>
+          <Tabs.Panel value="importexport" pt="xs">
+            <Link
+              href="/chat/export/allAsJSON"
+              className={classes.link}
+              onClick={close}
+            >
+              <IconPackageExport className={classes.linkIcon} stroke={1.5} />
+              Export all conversations as JSON
+            </Link>
           </Tabs.Panel>
           <Group position="apart" mt="lg">
             <Button
