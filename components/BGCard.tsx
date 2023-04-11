@@ -9,6 +9,7 @@ import {
 import { MouseEventHandler } from "react";
 import Image from "next/image";
 import { useMediaQuery } from "@mantine/hooks";
+import { useTranslation } from "next-i18next";
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -77,6 +78,7 @@ export default function ImageCard({
   const { classes, theme } = useStyles();
 
   const isMd = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
+  const { t } = useTranslation("new_chat");
 
   return (
     <Card
@@ -95,7 +97,7 @@ export default function ImageCard({
           sizes="(max-width: 768px) 100vw,
                   (max-width: 1200px) 50vw,
                   33vw"
-          alt={title}
+          alt={t(title)}
           style={{ objectFit: isMd ? "cover" : undefined }}
         />
       </div>
@@ -104,12 +106,12 @@ export default function ImageCard({
       <div className={classes.content}>
         <div>
           <Text size="lg" className={classes.title} weight={500}>
-            {title}
+            {t(title)}
           </Text>
 
           <Group position="apart" spacing="xs">
             <Text size="sm" className={classes.description}>
-              {description}
+              {t(description)}
             </Text>
           </Group>
         </div>

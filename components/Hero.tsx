@@ -123,7 +123,7 @@ export default function Hero() {
                 className={classes.control}
                 onClick={open}
               >
-                Enter API Key
+                {t("Enter API Key")}
               </Button>
               <Button
                 component="a"
@@ -134,7 +134,7 @@ export default function Hero() {
                 className={classes.control}
                 leftIcon={<IconBrandGithub size={20} />}
               >
-                Source Code
+                {t("Source Code")}
               </Button>
             </Group>
           </div>
