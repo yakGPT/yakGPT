@@ -176,19 +176,17 @@ export default function ChatDisplay({ message }: { message: Message }) {
               alignItems: "center",
             }}
           >
-            <MediaQuery smallerThan="md" styles={{ display: "none" }}>
-              <div className={classes.topOfMessage}>
-                <Avatar size="sm">
-                  {message.role === "system" ? (
-                    <IconSettings />
-                  ) : message.role === "assistant" ? (
-                    <AssistantIcon width={px("1.5rem")} height={px("1.5rem")} />
-                  ) : (
-                    <UserIcon width={px("1.5rem")} height={px("1.5rem")} />
-                  )}
-                </Avatar>
-              </div>
-            </MediaQuery>
+            <div className={classes.topOfMessage}>
+              <Avatar size="sm">
+                {message.role === "system" ? (
+                  <IconSettings />
+                ) : message.role === "assistant" ? (
+                  <AssistantIcon width={px("1.5rem")} height={px("1.5rem")} />
+                ) : (
+                  <UserIcon width={px("1.5rem")} height={px("1.5rem")} />
+                )}
+              </Avatar>
+            </div>
 
             <MessageDisplay
               message={message}

@@ -23,24 +23,29 @@ import { toggleAudio } from "@/stores/PlayerActions";
 
 const styles = createStyles((theme: MantineTheme) => ({
   container: {
-    display: "flex",
-    justifyContent: "space-between",
     position: "fixed",
-    bottom: 0,
     left: 0,
+    bottom: 0,
+    right: 0,
+    zIndex: 10,
+    backgroundColor:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[7]
+        : theme.colors.gray[0],
     [`@media (min-width: ${theme.breakpoints.sm})`]: {
       left: 200,
     },
     [`@media (min-width: ${theme.breakpoints.md})`]: {
       left: 250,
     },
-    right: 0,
-    zIndex: 1,
+    padding: "8px 0px 8px 0px",
+  },
+  inputContainer: {
+    display: "flex",
+    justifyContent: "space-between",
     maxWidth: 820,
     margin: "0 auto",
-    paddingBottom: 16,
-    paddingLeft: 8,
-    paddingRight: 8,
+    boxShadow: theme.shadows.md,
   },
   playerControls: {
     display: "flex",
@@ -219,9 +224,11 @@ export default function UIController() {
 
   return (
     <div className={classes.container}>
-      <PlayerControls />
-      <ChatInput />
-      <RecorderControls />
+      <div className={classes.inputContainer}>
+        <PlayerControls />
+        <ChatInput />
+        <RecorderControls />
+      </div>
     </div>
   );
 }

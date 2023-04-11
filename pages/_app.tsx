@@ -58,6 +58,23 @@ export default function App(props: AppProps) {
           withGlobalStyles
           withNormalizeCSS
           theme={{
+            // global style
+            globalStyles: () => ({
+              " ::-webkit-scrollbar": {
+                width: "8px",
+                height: "0px",
+              },
+              "::-webkit-scrollbar-track": {
+                backgroundColor: "#f1f1f1",
+              },
+              "::-webkit-scrollbar-thumb": {
+                backgroundColor: "#888",
+                borderRadius: "6px",
+              },
+              "::-webkit-scrollbar-thumb:hover": {
+                backgroundColor: "#555",
+              },
+            }),
             /** Put your mantine theme override here */
             colorScheme,
             primaryColor: "bluu",
