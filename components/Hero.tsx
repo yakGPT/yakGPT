@@ -14,6 +14,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { IconBrandGithub, IconCheck } from "@tabler/icons-react";
 import KeyModal from "./KeyModal";
+import { useTranslation } from "next-i18next";
 
 const useStyles = createStyles((theme) => ({
   inner: {
@@ -74,6 +75,8 @@ export default function Hero() {
   const { classes } = useStyles();
   const [opened, { open, close }] = useDisclosure(false);
 
+  const { t } = useTranslation("hero");
+
   return (
     <div>
       <Container>
@@ -83,7 +86,7 @@ export default function Hero() {
               <span className={classes.highlight}>YakGPT</span>
             </Title>
             <Text color="dimmed" mt="md">
-              A simple, locally running ChatGPT UI.
+              {t("A simple, locally running ChatGPT UI.")}
             </Text>
 
             <List
@@ -97,18 +100,19 @@ export default function Hero() {
               }
             >
               <List.Item>
-                <b>Run locally on browser</b> – no need to install any
-                applications
+                <b>{t("Run locally on browser")}</b> –{" "}
+                {t("no need to install any applications")}
               </List.Item>
               <List.Item>
-                <b>Faster than the official UI</b> – connect directly to the API
+                <b>{t("Faster than the official UI")}</b> –{" "}
+                {t("connect directly to the API")}
               </List.Item>
               <List.Item>
-                <b>Easy mic integration</b> – no more typing!
+                <b>{t("Easy mic integration")}</b> – {t("no more typing!")}
               </List.Item>
               <List.Item>
-                <b>Use your own API key</b> – ensure your data privacy and
-                security
+                <b>{t("Use your own API key")}</b> –{" "}
+                {t("ensure your data privacy and security")}
               </List.Item>
             </List>
 

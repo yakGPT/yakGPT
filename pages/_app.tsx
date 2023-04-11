@@ -8,6 +8,7 @@ import {
 } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import "highlight.js/styles/stackoverflow-dark.css";
+import { appWithTranslation } from "next-i18next";
 
 import { useChatStore } from "@/stores/ChatStore";
 
@@ -17,7 +18,7 @@ import UIController from "@/components/UIController";
 import { setColorScheme } from "@/stores/ChatActions";
 import AudioPlayer from "@/components/AudioPlayer";
 
-export default function App(props: AppProps) {
+const App = (props: AppProps) => {
   const { Component, pageProps } = props;
 
   const colorScheme = useChatStore((state) => state.colorScheme);
@@ -135,4 +136,6 @@ export default function App(props: AppProps) {
       </ColorSchemeProvider>
     </>
   );
-}
+};
+
+export default appWithTranslation(App);

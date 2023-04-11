@@ -10,6 +10,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { useTranslation } from "next-i18next";
 
 import { testKey as testKeyOpenAI } from "@/stores/OpenAI";
 import { testKey as testKey11Labs } from "@/stores/ElevenLabs";
@@ -51,6 +52,7 @@ export function APIPanel({
   >("idle");
   const [apiKey, setApiKey] = useState(initialKey);
   const [region, setRegion] = useState(initialRegion);
+  const { t } = useTranslation("key_modal");
 
   const handleKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCheckStatus("idle");
@@ -95,8 +97,8 @@ export function APIPanel({
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <h2>🔑 {name}:</h2>
-        <p>{descriptionAboveInput}</p>
+        <h2>{t(`🔑 ${name}:`)}</h2>
+        <p>{t(`${descriptionAboveInput}`)}</p>
         <PasswordInput
           label="API Key"
           placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -118,10 +120,10 @@ export function APIPanel({
             type="submit"
             disabled={initialKey === apiKey && initialRegion === region}
           >
-            Save
+            {t("Save")}
           </Button>
           <Button onClick={closeModal} variant="light">
-            Cancel
+            {t("Cancel")}
           </Button>
         </Group>
       </form>
@@ -140,6 +142,8 @@ export default function KeyModal({ close }: { close: () => void }) {
   const setApiKeyAzureRegion = (region: string) =>
     update({ apiKeyAzureRegion: region });
   const setApiKey11Labs = (key: string) => update({ apiKey11Labs: key });
+
+  const { t } = useTranslation("key_modal");
 
   return (
     <div>
@@ -168,7 +172,7 @@ export default function KeyModal({ close }: { close: () => void }) {
               descriptionAboveInput="You need an OpenAI API Key. Your API Key is stored locally on your browser and never sent anywhere else."
               descriptionBelowInput={
                 <p>
-                  → Get your API key from the{" "}
+                  {t("→ Get your API key from the ")}
                   <a
                     target="_blank"
                     href="https://platform.openai.com/account/api-keys"
@@ -192,12 +196,12 @@ export default function KeyModal({ close }: { close: () => void }) {
               descriptionAboveInput="If you'd like to use TTS via Azure, you will need an Azure Speech API Key. Your API Key is stored locally on your browser and never sent anywhere else. Note that cost estimation does not work for Azure, so watch your usage!"
               descriptionBelowInput={
                 <p>
-                  → Azure gives a $200 free credit on signup.{" "}
+                  {t("→ Azure gives a $200 free credit on signup. ")}
                   <a
                     target="_blank"
                     href="https://carldesouza.com/get-a-microsoft-cognitive-services-subscription-key/"
                   >
-                    This guide explains the steps.
+                    {t("This guide explains the steps.")}
                   </a>
                 </p>
               }
@@ -213,7 +217,7 @@ export default function KeyModal({ close }: { close: () => void }) {
               descriptionAboveInput="If you'd like to use TTS via Eleven Labs, you will need an Eleven Labs API Key. Your API Key is stored locally on your browser and never sent anywhere else. Note that cost estimation does not work for ElevenLabs, so watch your usage!"
               descriptionBelowInput={
                 <p>
-                  → Get your API key from your{" "}
+                  {t("→ Get your API key from the ")}
                   <a
                     target="_blank"
                     href="https://beta.elevenlabs.io/speech-synthesis"

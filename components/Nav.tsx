@@ -1,4 +1,5 @@
 import { useChatStore } from "@/stores/ChatStore";
+import { useTranslation } from "next-i18next";
 import { v4 as uuidv4 } from "uuid";
 import {
   ActionIcon,
@@ -134,7 +135,7 @@ export default function NavbarSimple() {
 
   const router = useRouter();
   const activeChatId = router.query.chatId as string | undefined;
-
+  const { t } = useTranslation("nav");
   const [openedKeyModal, { open: openKeyModal, close: closeKeyModal }] =
     useDisclosure(false);
   const [
@@ -187,7 +188,7 @@ export default function NavbarSimple() {
       </a>
       {chat.id === activeChatId && (
         <>
-          <Tooltip label="Delete" withArrow position="right">
+          <Tooltip label={t("Delete")} withArrow position="right">
             <a
               href="#"
               onClick={(event) => {
@@ -215,7 +216,7 @@ export default function NavbarSimple() {
               </ActionIcon>
             </a>
           </Tooltip>
-          <Tooltip label="Edit" withArrow position="right">
+          <Tooltip label={t("Edit")} withArrow position="right">
             <a
               href="#"
               onClick={(event) => {
@@ -272,7 +273,7 @@ export default function NavbarSimple() {
             }}
           >
             <IconPlus className={classes.linkIcon} stroke={1.5} />
-            <span>New Chat</span>
+            <span>{t("New Chat")}</span>
             <MediaQuery largerThan="sm" styles={{ display: "none" }}>
               <Burger
                 opened={navOpened}
@@ -318,7 +319,7 @@ export default function NavbarSimple() {
         >
           <Icon className={classes.linkIcon} stroke={1.5} />
           <span>
-            {upperFirst(colorScheme === "light" ? "dark" : "light")} theme
+            {colorScheme === "light" ? t("Dark theme") : t("Light theme")}
           </span>
         </a>
 
@@ -337,7 +338,7 @@ export default function NavbarSimple() {
           }}
         >
           <IconKey className={classes.linkIcon} stroke={1.5} />
-          <span>API Keys</span>
+          <span>{t("API Keys")}</span>
         </a>
 
         <Modal
@@ -360,7 +361,7 @@ export default function NavbarSimple() {
           }}
         >
           <IconSettings className={classes.linkIcon} stroke={1.5} />
-          <span>Settings</span>
+          <span>{t("Settings")}</span>
         </a>
       </Navbar.Section>
       <Modal

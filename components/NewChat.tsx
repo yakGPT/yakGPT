@@ -4,6 +4,8 @@ import { useChatStore } from "@/stores/ChatStore";
 import { Container, rem, useMantineTheme } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useMediaQuery } from "@mantine/hooks";
+import { useTranslation } from "next-i18next";
+
 import {
   IconArrowDown,
   IconArrowLeft,
@@ -219,9 +221,10 @@ function CardsCarousel({ children }: { children: React.ReactNode }) {
 export default function NewChatCarousel() {
   const router = useRouter();
 
+  const { t } = useTranslation("new_chat");
   return (
     <Container py="xl">
-      <h2 style={{ textAlign: "center" }}> Choose a prompt...</h2>
+      <h2 style={{ textAlign: "center" }}>{t("Choose a prompt...")}</h2>
       <CardsCarousel>
         {Object.keys(characters).map((key) => {
           // @ts-ignore
@@ -260,7 +263,7 @@ export default function NewChatCarousel() {
           textAlign: "center",
         }}
       >
-        <h2> Or start by simply typing below</h2>
+        <h2>{t("Or start by simply typing below")}</h2>
         <IconArrowDown style={{ marginLeft: "0.5rem" }} />
       </div>
     </Container>
