@@ -60,13 +60,16 @@ const App = (props: AppProps) => {
           withNormalizeCSS
           theme={{
             // global style
-            globalStyles: () => ({
+            globalStyles: (theme) => ({
               " ::-webkit-scrollbar": {
                 width: "8px",
                 height: "0px",
               },
               "::-webkit-scrollbar-track": {
-                backgroundColor: "#f1f1f1",
+                backgroundColor:
+                  theme.colorScheme === "light"
+                    ? "#f1f1f1"
+                    : theme.colors.dark[8],
               },
               "::-webkit-scrollbar-thumb": {
                 backgroundColor: "#888",

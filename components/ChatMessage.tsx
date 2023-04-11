@@ -22,21 +22,6 @@ import {
 } from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme: MantineTheme) => ({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-
-    [`@media (min-width: ${theme.breakpoints.sm})`]: {
-      paddingBottom: "5em",
-    },
-  },
-  chatContainer: {
-    overflowY: "scroll",
-    flexGrow: 1,
-    display: "flex",
-    flexDirection: "column",
-  },
   messageContainer: {
     display: "flex",
     flexDirection: "column",
