@@ -30,6 +30,7 @@
     "form-data": "^4.0.0",
     "highlight.js": "^11.7.0",
     "iso-639-1": "^2.1.15",
+    "js-file-download": "^0.4.12",
     "lodash": "^4.17.21",
     "markdown-it": "^13.0.1",
     "markdown-it-highlightjs": "^4.0.1",

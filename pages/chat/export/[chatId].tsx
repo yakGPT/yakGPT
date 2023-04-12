@@ -1,14 +1,18 @@
+import MuHeader from "@/components/MuHeader";
 import { Chat } from "@/stores/Chat";
 import { useChatStore } from "@/stores/ChatStore";
 import { Message } from "@/stores/Message";
 import { Container, Text, Title } from "@mantine/core";
 import { usePrevious } from "@mantine/hooks";
+import fileDownload from "js-file-download";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 /**
- * This code runs exclusively on the client, as the chats are stored in localStorage.
- * Web APIs can be used for export.
+ * Export single chat as markdown file. Auto-downloads the file on visit but
+ * serves a regular page. Blob as initial response is not possible as localStorage is client-side.
+ *
+ * Providing a route instead of just a function that triggers the file download here.
  */
 export default function ChatDownloadAsMarkdown() {
   const router = useRouter();
@@ -28,11 +32,7 @@ export default function ChatDownloadAsMarkdown() {
     (async () => {
       if (chat && linkRef.current && chat !== previousChat) {
         try {
-          const url = createDownload(
-            chat,
-            linkRef.current,
-            !hasDownloaded.current
-          );
+          const url = createDownload(chat, !hasDownloaded.current);
           hasDownloaded.current = true;
           setObjectURL(url);
         } catch {
@@ -61,11 +61,12 @@ export default function ChatDownloadAsMarkdown() {
 
   return (
     <Container py="xl">
+      <MuHeader />
       {error ? (
         <Title>{error ?? "Unknown error"}</Title>
       ) : (
         <>
-          <Text>Downloading chat {chatName(chat)}...</Text>
+          <Text>Downloading chat &quot;{chatName(chat)}&quot;...</Text>
           <Text>
             If your download does not start, try{" "}
             <a href={objectURL} ref={linkRef} download={chatName(chat)}>
@@ -96,15 +97,7 @@ ${msg.content}
 
 const chatName = (chat?: Chat) => (chat ? `${chat.title ?? chat.id}` : "");
 
-/**
- * Clicking the reffed HTML link from inside useEffect does not work.
- * it needs to be done here.
- */
-const createDownload = (
-  chat: Chat,
-  link: HTMLAnchorElement,
-  triggerDownload = false
-): string => {
+const createDownload = (chat: Chat, triggerDownload = false): string => {
   const result = [];
   for (const message of chat.messages) {
     try {
@@ -120,9 +113,7 @@ const createDownload = (
   const blob = new Blob(result, { type: "text/markdown" });
   const url = URL.createObjectURL(blob);
   if (triggerDownload) {
-    link.download = chatName(chat);
-    link.href = url;
-    link.click();
+    fileDownload(blob, `${chatName(chat)}.md`);
   }
   return url;
 };

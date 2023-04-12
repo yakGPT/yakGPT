@@ -194,6 +194,7 @@ export default function NavbarSimple() {
                 position: "absolute",
                 right: 35,
               }}
+              onClick={() => setNavOpened(false)}
             >
               <ActionIcon
                 variant="default"

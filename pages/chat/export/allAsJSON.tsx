@@ -1,6 +1,8 @@
+import MuHeader from "@/components/MuHeader";
 import { Chat } from "@/stores/Chat";
 import { useChatStore } from "@/stores/ChatStore";
 import { Container, Text, Title } from "@mantine/core";
+import fileDownload from "js-file-download";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
@@ -20,7 +22,7 @@ export default function ChatsJSONExport() {
     (async () => {
       if (chats) {
         try {
-          const url = createObjectURL(chats, window, !hasDownloaded.current);
+          const url = createDownload(chats, !hasDownloaded.current);
           hasDownloaded.current = true;
           setObjectURL(url);
         } catch {
@@ -41,6 +43,7 @@ export default function ChatsJSONExport() {
 
   return (
     <Container py="xl">
+      <MuHeader />
       {error ? (
         <Title>{error ?? "Unknown error"}</Title>
       ) : (
@@ -58,22 +61,11 @@ export default function ChatsJSONExport() {
   );
 }
 
-const createObjectURL = (
-  chats: Chat[],
-  window: Window,
-  triggerDownload = false
-): string => {
+const createDownload = (chats: Chat[], triggerDownload = false): string => {
   const blob = new Blob([JSON.stringify(chats)], { type: "application/json" });
   const downloadURI = URL.createObjectURL(blob);
   if (triggerDownload) {
-    const a = document.createElement("a");
-    window.document.body.appendChild(a);
-    a.href = downloadURI;
-    a.style.display = "none";
-    a.download = `YakGPT-Export-${new Date().toISOString()}.json`;
-    //This downloads the file.
-    a.click();
-    a.remove();
+    fileDownload(blob, `yakgpt-chats-${new Date().toISOString()}.json`);
   }
   return downloadURI;
 };

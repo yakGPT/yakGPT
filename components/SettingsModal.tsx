@@ -13,7 +13,7 @@ import {
   Box,
   Button,
   Divider,
-  FileInput,
+  FileButton,
   Group,
   Indicator,
   Select,
@@ -31,6 +31,7 @@ import { useForm } from "@mantine/form";
 import {
   IconBraces,
   IconExclamationCircle,
+  IconFileExport,
   IconMicrophone,
   IconPackageExport,
   IconPackageImport,
@@ -234,7 +235,7 @@ export default function SettingsModal({ close }: { close: () => void }) {
             </Tabs.Tab>
             <Tabs.Tab
               value="importexport"
-              icon={<IconBraces size={px("0.8rem")} />}
+              icon={<IconFileExport size={px("0.8rem")} />}
             >
               Import / Export
             </Tabs.Tab>
@@ -496,12 +497,15 @@ export default function SettingsModal({ close }: { close: () => void }) {
                 offset={-4}
                 style={{ flexGrow: 1 }}
               >
-                <FileInput
+                <FileButton
                   aria-label="Import conversations from JSON"
-                  placeholder="Upload JSON file"
-                  value={fileToImport}
                   onChange={setFileToImport}
-                />
+                  accept="application/json"
+                >
+                  {(props) => (
+                    <Text {...props}>Import conversations from JSON</Text>
+                  )}
+                </FileButton>
               </Indicator>
             </Group>
             <Group align="center" pl="sm">
@@ -547,18 +551,3 @@ export default function SettingsModal({ close }: { close: () => void }) {
     </Box>
   );
 }
-
-const isValidImportFile = async (
-  fileToImport: File | null
-): Promise<boolean | undefined> => {
-  if (!fileToImport) {
-    return;
-  }
-  const fileContents = await fileToImport.text();
-  try {
-    const json = JSON.parse(fileContents);
-    return Array.isArray(json) && json.every(isChat);
-  } catch {
-    return false;
-  }
-};
