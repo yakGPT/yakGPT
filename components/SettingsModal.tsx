@@ -1,5 +1,10 @@
 import * as Azure from "@/stores/AzureSDK";
-import { refreshModels, updateSettingsForm } from "@/stores/ChatActions";
+import { Chat, isChat } from "@/stores/Chat";
+import {
+  refreshModels,
+  update,
+  updateSettingsForm,
+} from "@/stores/ChatActions";
 import { useChatStore } from "@/stores/ChatStore";
 import * as ElevenLabs from "@/stores/ElevenLabs";
 import {
@@ -7,7 +12,10 @@ import {
   Autocomplete,
   Box,
   Button,
+  Divider,
+  FileInput,
   Group,
+  Indicator,
   Select,
   Slider,
   Switch,
@@ -20,11 +28,12 @@ import {
   px,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useMediaQuery } from "@mantine/hooks";
 import {
   IconBraces,
+  IconExclamationCircle,
   IconMicrophone,
   IconPackageExport,
+  IconPackageImport,
   IconSettings,
 } from "@tabler/icons-react";
 import ISO6391 from "iso-639-1";
@@ -161,9 +170,42 @@ export default function SettingsModal({ close }: { close: () => void }) {
     return acc;
   }, {} as Record<string, string>);
 
-  const { theme, classes } = useStyles();
+  const { classes } = useStyles();
 
-  const isMd = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
+  const [fileToImport, setFileToImport] = useState<File | null>(null);
+
+  const [importFileIsValid, setImportFileIsValid] = useState<
+    boolean | undefined
+  >();
+
+  const [chatsToImport, setChatsToImport] = useState<Chat[] | undefined>();
+
+  useEffect(() => {
+    (async () => {
+      if (!fileToImport) {
+        return;
+      }
+      const fileContents = await fileToImport.text();
+      try {
+        const json = JSON.parse(fileContents);
+        const isValidImportFile = Array.isArray(json) && json.every(isChat);
+        setImportFileIsValid(isValidImportFile);
+        setChatsToImport(isValidImportFile ? json : undefined);
+      } catch {
+        setImportFileIsValid(false);
+      }
+    })();
+    return () => {
+      setImportFileIsValid(undefined);
+    };
+  }, [fileToImport]);
+
+  const chatStore = useChatStore();
+
+  const importChats = () => {
+    update({ chats: chatsToImport });
+    close();
+  };
 
   return (
     <Box mx="auto">
@@ -440,6 +482,54 @@ export default function SettingsModal({ close }: { close: () => void }) {
               <IconPackageExport className={classes.linkIcon} stroke={1.5} />
               Export all conversations as JSON
             </Link>
+            <Divider />
+            <Group className={classes.link} style={{ gap: 0 }}>
+              <IconPackageImport className={classes.linkIcon} stroke={1.5} />
+              <Indicator
+                color={
+                  importFileIsValid === undefined
+                    ? "transparent"
+                    : importFileIsValid
+                    ? "green"
+                    : "red"
+                }
+                offset={-4}
+                style={{ flexGrow: 1 }}
+              >
+                <FileInput
+                  aria-label="Import conversations from JSON"
+                  placeholder="Upload JSON file"
+                  value={fileToImport}
+                  onChange={setFileToImport}
+                />
+              </Indicator>
+            </Group>
+            <Group align="center" pl="sm">
+              {importFileIsValid ? (
+                <>
+                  <Box
+                    style={{
+                      display: "flex",
+                      flexBasis: "100%",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Button variant="light" onClick={importChats}>
+                      Import chats
+                    </Button>
+                  </Box>
+
+                  <IconExclamationCircle />
+
+                  <Text size="sm">
+                    This will replace all of your current conversations! This
+                    cannot be undone!
+                  </Text>
+                </>
+              ) : importFileIsValid === false ? (
+                <Text size="sm">Invalid input file.</Text>
+              ) : null}
+            </Group>
           </Tabs.Panel>
           <Group position="apart" mt="lg">
             <Button
@@ -457,3 +547,18 @@ export default function SettingsModal({ close }: { close: () => void }) {
     </Box>
   );
 }
+
+const isValidImportFile = async (
+  fileToImport: File | null
+): Promise<boolean | undefined> => {
+  if (!fileToImport) {
+    return;
+  }
+  const fileContents = await fileToImport.text();
+  try {
+    const json = JSON.parse(fileContents);
+    return Array.isArray(json) && json.every(isChat);
+  } catch {
+    return false;
+  }
+};

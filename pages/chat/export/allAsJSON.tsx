@@ -33,6 +33,7 @@ export default function ChatsJSONExport() {
       return () => {
         if (objectURL) {
           window.URL.revokeObjectURL(objectURL);
+          setObjectURL(undefined);
         }
       };
     })();
