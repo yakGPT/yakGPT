@@ -1,24 +1,28 @@
+import {
+  clearChats,
+  deleteChat,
+  setNavOpened,
+  updateChat,
+} from "@/stores/ChatActions";
 import { useChatStore } from "@/stores/ChatStore";
-import { useTranslation } from "next-i18next";
-import { v4 as uuidv4 } from "uuid";
 import {
   ActionIcon,
   Box,
   Burger,
+  createStyles,
+  getStylesRef,
   Group,
   MediaQuery,
   Modal,
   Navbar,
+  px,
+  rem,
   Text,
   TextInput,
   Tooltip,
-  createStyles,
-  getStylesRef,
-  px,
-  rem,
   useMantineColorScheme,
 } from "@mantine/core";
-import { upperFirst, useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
   IconArrowRight,
   IconEdit,
@@ -29,17 +33,12 @@ import {
   IconSun,
   IconTrash,
 } from "@tabler/icons-react";
+import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import ClearChatsButton from "./ClearChatsButton";
 import KeyModal from "./KeyModal";
 import SettingsModal from "./SettingsModal";
-import { useRouter } from "next/router";
-import {
-  clearChats,
-  deleteChat,
-  setNavOpened,
-  updateChat,
-} from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme) => ({
   header: {

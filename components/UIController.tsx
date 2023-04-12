@@ -28,6 +28,7 @@ const styles = createStyles((theme: MantineTheme) => ({
     bottom: 0,
     right: 0,
     zIndex: 10,
+    // width: "100%",
     backgroundColor:
       theme.colorScheme === "dark"
         ? theme.colors.dark[7]
@@ -35,10 +36,11 @@ const styles = createStyles((theme: MantineTheme) => ({
     [`@media (min-width: ${theme.breakpoints.sm})`]: {
       left: 200,
     },
-    [`@media (min-width: ${theme.breakpoints.md})`]: {
+    [`@media (min-width: ${theme.breakpoints.lg})`]: {
       left: 250,
     },
-    padding: "8px 0px 8px 0px",
+    padding: "8px",
+    borderRadius: "4px",
   },
   inputContainer: {
     display: "flex",
