@@ -49,6 +49,10 @@ COPY --from=builder /app/public ./public
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# next-i18next
+COPY --from=builder /app/next.config.js ./next.config.js
+COPY --from=builder /app/next-i18next.config.js ./next-i18next.config.js
+
 
 USER nextjs
 
