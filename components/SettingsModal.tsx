@@ -10,6 +10,7 @@ import {
   Tabs,
   Autocomplete,
   Switch,
+  NumberInput,
   px,
   Accordion,
   Title,
@@ -328,6 +329,15 @@ export default function SettingsModal({ close }: { close: () => void }) {
                 form.setFieldValue("spoken_language_azure", value!);
               }}
               data={Object.values(azureCandidateLanguages)}
+            />
+            <NumberInput
+              label="Message submit debounce (milliseconds)"
+              value={form.values.submit_debounce_ms}
+              onChange={(value) => {
+                if (typeof value === "number") {
+                  form.setFieldValue("submit_debounce_ms", value);
+                }
+              }}
             />
             <Title pt="md" pb="sm" order={4}>
               Text to Speech

@@ -52,6 +52,7 @@ interface SettingsForm {
   spoken_language_azure: string;
   spoken_language_code_azure: string;
   spoken_language_style: string;
+  submit_debounce_ms: number;
 }
 
 export const defaultSettings = {
@@ -77,6 +78,7 @@ export const defaultSettings = {
   spoken_language_azure: "English (US)",
   spoken_language_code_azure: "en-US",
   spoken_language_style: "friendly",
+  submit_debounce_ms: 0,
 };
 
 export interface ChatState {

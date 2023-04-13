@@ -6,6 +6,7 @@ import { submitMessage } from "./SubmitMessage";
 import * as speechsdk from "microsoft-cognitiveservices-speech-sdk";
 import { addChat } from "./ChatActions";
 import { NextRouter } from "next/router";
+import { debounce } from "lodash";
 
 const get = useChatStore.getState;
 const set = useChatStore.setState;
@@ -16,34 +17,45 @@ export const startRecording = async (router: NextRouter) => {
   clearTimeout(get().recorderTimeout);
   const { apiKeyAzure, apiKeyAzureRegion } = get();
 
-  let lastTextUpdate = "";
+  let textUpdates: string[] = [];
 
-  const updateText = (text: string, persist: boolean) => {
-    // Remove previous text update
-    const textInputValue = get().textInputValue;
-    const cutText = textInputValue.substring(
-      0,
-      textInputValue.length - lastTextUpdate.length
-    );
+  const persistText = (text: string) => {
+    const effectiveInputValue = `${get().textInputValue} `;
     set((state) => ({
-      textInputValue: `${cutText}${text}${persist ? " " : ""}`,
+      textInputValue: effectiveInputValue,
     }));
-    // Reset if persisting, otherwise update
-    if (persist) {
-      lastTextUpdate = "";
-      if (get().autoSendStreamingSTT) {
-        if (!get().activeChatId) {
-          addChat(router);
-        }
-        submitMessage({
-          id: uuidv4(),
-          content: text,
-          role: "user",
-        });
-        set((state) => ({ textInputValue: "" }));
+    if (get().autoSendStreamingSTT) {
+      if (!get().activeChatId) {
+        addChat(router);
       }
-    } else {
-      lastTextUpdate = text;
+      submitMessage({
+        id: uuidv4(),
+        content: effectiveInputValue,
+        role: "user",
+      });
+      set((state) => ({ textInputValue: "" }));
+      textUpdates = [];
+    }
+  };
+  const { submit_debounce_ms: submitDebounce  } = get().settingsForm;
+  const debouncedPersistText = debounce(persistText, submitDebounce);
+
+  const updateText = (text: string, recognitionComplete: boolean) => {
+    text = text.trim();
+    set((state) => ({
+      textInputValue: `${textUpdates.join(" ")} ${text}`,
+    }));
+    if (recognitionComplete) {
+      textUpdates.push(text);
+    }
+  };
+
+  const updateAndEventuallyPersistText = (text: string, recognitionComplete: boolean) => {
+    updateText(text, recognitionComplete);
+    if (submitDebounce) {
+      debouncedPersistText(text);
+    } else if (recognitionComplete) {
+      persistText(text);
     }
   };
 
@@ -75,13 +87,14 @@ export const startRecording = async (router: NextRouter) => {
 
   recognizer.recognizing = (s, e) => {
     console.log(`RECOGNIZING: Text=${e.result.text}`);
-    updateText(e.result.text, false);
+    updateAndEventuallyPersistText(e.result.text, false);
   };
 
   recognizer.recognized = (s, e) => {
-    if (e.result.reason == speechsdk.ResultReason.RecognizedSpeech) {
-      console.log(`RECOGNIZED: Text=${e.result.text}`);
-      updateText(e.result.text, true);
+    let resultText = e.result.text.trim();
+    if (e.result.reason == speechsdk.ResultReason.RecognizedSpeech && resultText) {
+      console.log(`RECOGNIZED: Text=${resultText}`);
+      updateAndEventuallyPersistText(resultText, true);
     } else if (e.result.reason == speechsdk.ResultReason.NoMatch) {
       console.log("NOMATCH: Speech could not be recognized.");
     }
@@ -89,6 +102,7 @@ export const startRecording = async (router: NextRouter) => {
 
   recognizer.canceled = (s, e) => {
     console.log(`CANCELED: Reason=${e.reason}`);
+    debouncedPersistText.cancel();
 
     if (e.reason == speechsdk.CancellationReason.Error) {
       console.log(`"CANCELED: ErrorCode=${e.errorCode}`);
@@ -103,6 +117,7 @@ export const startRecording = async (router: NextRouter) => {
 
   recognizer.sessionStopped = (s, e) => {
     console.log("\n    Session stopped event.");
+    debouncedPersistText.cancel();
     recognizer.stopContinuousRecognitionAsync();
   };
   console.log("Starting recording...", recorder);
