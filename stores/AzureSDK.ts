@@ -51,7 +51,7 @@ function createSSML(
 ): string {
   let expressAs = "";
 
-  text = removeEmoji(escapeChars(text));
+  text = removeEmoji(escapeChars(removeQuotes(text)));
 
   if (style) {
     expressAs = `<mstts:express-as style="${style}">${text}</mstts:express-as>`;
@@ -148,6 +148,11 @@ const removeEmoji = (text: string) => {
     /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
     ""
   );
+};
+
+const removeQuotes = (text: string) => {
+  // Quotes are read as "end quote" by the TTS, and are very annoying
+  return text.replace(/"/g, "");
 };
 
 const escapeChars = (text: string) => {
