@@ -216,12 +216,20 @@ const RecorderControls = () => {
 
 export default function UIController() {
   const { classes } = styles();
+  const { route } = useRouter();
+  const isExportPage = route.startsWith("/chat/export/");
 
   return (
-    <div className={classes.container}>
-      <PlayerControls />
-      <ChatInput />
-      <RecorderControls />
-    </div>
+    <>
+      {isExportPage ? (
+        <></>
+      ) : (
+        <div className={classes.container}>
+          <PlayerControls />
+          <ChatInput />
+          <RecorderControls />
+        </div>
+      )}
+    </>
   );
 }

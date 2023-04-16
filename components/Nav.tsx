@@ -1,5 +1,10 @@
+import {
+  clearChats,
+  deleteChat,
+  setNavOpened,
+  updateChat,
+} from "@/stores/ChatActions";
 import { useChatStore } from "@/stores/ChatStore";
-import { v4 as uuidv4 } from "uuid";
 import {
   ActionIcon,
   Box,
@@ -20,6 +25,7 @@ import {
 import { upperFirst, useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
   IconArrowRight,
+  IconDownload,
   IconEdit,
   IconKey,
   IconMoon,
@@ -28,17 +34,11 @@ import {
   IconSun,
   IconTrash,
 } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import ClearChatsButton from "./ClearChatsButton";
 import KeyModal from "./KeyModal";
 import SettingsModal from "./SettingsModal";
-import { useRouter } from "next/router";
-import {
-  clearChats,
-  deleteChat,
-  setNavOpened,
-  updateChat,
-} from "@/stores/ChatActions";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -187,6 +187,30 @@ export default function NavbarSimple() {
       </a>
       {chat.id === activeChatId && (
         <>
+          <Tooltip label="Download" withArrow position="right">
+            <a
+              href={`/chat/export/${chat.id}`}
+              style={{
+                position: "absolute",
+                right: 35,
+              }}
+              onClick={() => setNavOpened(false)}
+            >
+              <ActionIcon
+                variant="default"
+                size={18}
+                sx={{
+                  boxShadow: `8px 0 16px 20px ${
+                    theme.colorScheme === "dark"
+                      ? theme.colors.dark[7]
+                      : "white"
+                  }`,
+                }}
+              >
+                <IconDownload size={px("0.8rem")} stroke={1.5} />
+              </ActionIcon>
+            </a>
+          </Tooltip>
           <Tooltip label="Delete" withArrow position="right">
             <a
               href="#"
@@ -344,6 +368,7 @@ export default function NavbarSimple() {
           opened={openedSettingsModal}
           onClose={closeSettingsModal}
           title="Settings"
+          size={"auto"}
         >
           <SettingsModal close={closeSettingsModal} />
         </Modal>

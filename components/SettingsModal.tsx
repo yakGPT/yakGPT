@@ -1,26 +1,45 @@
-import { useChatStore } from "@/stores/ChatStore";
-import {
-  TextInput,
-  Button,
-  Group,
-  Box,
-  Text,
-  Slider,
-  Select,
-  Tabs,
-  Autocomplete,
-  Switch,
-  px,
-  Accordion,
-  Title,
-} from "@mantine/core";
-import ISO6391 from "iso-639-1";
-import { useForm } from "@mantine/form";
-import { IconBraces, IconMicrophone, IconSettings } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
-import * as ElevenLabs from "@/stores/ElevenLabs";
-import { refreshModels, updateSettingsForm } from "@/stores/ChatActions";
 import * as Azure from "@/stores/AzureSDK";
+import { Chat, isChat } from "@/stores/Chat";
+import {
+  refreshModels,
+  update,
+  updateSettingsForm,
+} from "@/stores/ChatActions";
+import { useChatStore } from "@/stores/ChatStore";
+import * as ElevenLabs from "@/stores/ElevenLabs";
+import {
+  Accordion,
+  Autocomplete,
+  Box,
+  Button,
+  Divider,
+  FileButton,
+  Group,
+  Indicator,
+  Select,
+  Slider,
+  Switch,
+  Tabs,
+  Text,
+  TextInput,
+  Title,
+  createStyles,
+  getStylesRef,
+  px,
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import {
+  IconBraces,
+  IconExclamationCircle,
+  IconFileExport,
+  IconMicrophone,
+  IconPackageExport,
+  IconPackageImport,
+  IconSettings,
+} from "@tabler/icons-react";
+import ISO6391 from "iso-639-1";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { azureCandidateLanguages } from "./azureLangs";
 
 function getLanguages() {
@@ -30,6 +49,46 @@ function getLanguages() {
     value: code,
   }));
 }
+
+const useStyles = createStyles((theme) => ({
+  link: {
+    ...theme.fn.focusStyles(),
+    display: "flex",
+    alignItems: "center",
+    textDecoration: "none",
+    fontSize: theme.fontSizes.sm,
+    color:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[1]
+        : theme.colors.gray[7],
+    padding: `${theme.spacing.xs} ${theme.spacing.xs}`,
+    borderRadius: theme.radius.sm,
+    fontWeight: 500,
+    // im a noob
+    flexGrow: "1 !important",
+
+    "&:hover": {
+      backgroundColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[6]
+          : theme.colors.gray[0],
+      color: theme.colorScheme === "dark" ? theme.white : theme.black,
+
+      [`& .${getStylesRef("icon")}`]: {
+        color: theme.colorScheme === "dark" ? theme.white : theme.black,
+      },
+    },
+  },
+
+  linkIcon: {
+    ref: getStylesRef("icon"),
+    color:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[2]
+        : theme.colors.gray[6],
+    marginRight: theme.spacing.sm,
+  },
+}));
 
 export default function SettingsModal({ close }: { close: () => void }) {
   const modelChoicesChat =
@@ -112,6 +171,43 @@ export default function SettingsModal({ close }: { close: () => void }) {
     return acc;
   }, {} as Record<string, string>);
 
+  const { classes } = useStyles();
+
+  const [fileToImport, setFileToImport] = useState<File | null>(null);
+
+  const [importFileIsValid, setImportFileIsValid] = useState<
+    boolean | undefined
+  >();
+
+  const [chatsToImport, setChatsToImport] = useState<Chat[] | undefined>();
+
+  useEffect(() => {
+    (async () => {
+      if (!fileToImport) {
+        return;
+      }
+      const fileContents = await fileToImport.text();
+      try {
+        const json = JSON.parse(fileContents);
+        const isValidImportFile = Array.isArray(json) && json.every(isChat);
+        setImportFileIsValid(isValidImportFile);
+        setChatsToImport(isValidImportFile ? json : undefined);
+      } catch {
+        setImportFileIsValid(false);
+      }
+    })();
+    return () => {
+      setImportFileIsValid(undefined);
+    };
+  }, [fileToImport]);
+
+  const chatStore = useChatStore();
+
+  const importChats = () => {
+    update({ chats: chatsToImport });
+    close();
+  };
+
   return (
     <Box mx="auto">
       <form
@@ -136,6 +232,12 @@ export default function SettingsModal({ close }: { close: () => void }) {
             </Tabs.Tab>
             <Tabs.Tab value="11labs" icon={<IconBraces size={px("0.8rem")} />}>
               ElevenLabs
+            </Tabs.Tab>
+            <Tabs.Tab
+              value="importexport"
+              icon={<IconFileExport size={px("0.8rem")} />}
+            >
+              Import / Export
             </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="openai" pt="xs">
@@ -371,6 +473,67 @@ export default function SettingsModal({ close }: { close: () => void }) {
                 value: voice.voice_id,
               }))}
             ></Select>
+          </Tabs.Panel>
+          <Tabs.Panel value="importexport" pt="xs">
+            <Link
+              href="/chat/export/allAsJSON"
+              className={classes.link}
+              onClick={close}
+            >
+              <IconPackageExport className={classes.linkIcon} stroke={1.5} />
+              Export all conversations as JSON
+            </Link>
+            <Divider />
+            <Group className={classes.link} style={{ gap: 0 }}>
+              <IconPackageImport className={classes.linkIcon} stroke={1.5} />
+              <Indicator
+                color={
+                  importFileIsValid === undefined
+                    ? "transparent"
+                    : importFileIsValid
+                    ? "green"
+                    : "red"
+                }
+                offset={-4}
+                style={{ flexGrow: 1 }}
+              >
+                <FileButton
+                  aria-label="Import conversations from JSON"
+                  onChange={setFileToImport}
+                  accept="application/json"
+                >
+                  {(props) => (
+                    <Text {...props}>Import conversations from JSON</Text>
+                  )}
+                </FileButton>
+              </Indicator>
+            </Group>
+            <Group align="center" pl="sm">
+              {importFileIsValid ? (
+                <>
+                  <Box
+                    style={{
+                      display: "flex",
+                      flexBasis: "100%",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Button variant="light" onClick={importChats}>
+                      Import chats
+                    </Button>
+                  </Box>
+
+                  <IconExclamationCircle />
+
+                  <Text size="sm">
+                    This will replace all of your current conversations! This
+                    cannot be undone!
+                  </Text>
+                </>
+              ) : importFileIsValid === false ? (
+                <Text size="sm">Invalid input file.</Text>
+              ) : null}
+            </Group>
           </Tabs.Panel>
           <Group position="apart" mt="lg">
             <Button
