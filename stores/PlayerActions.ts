@@ -131,7 +131,19 @@ export const initPlayback = () => {
 };
 
 export const playAudio = (idx: number) => {
-  const { playerIdx, playerAudioQueue, playerRef } = get();
+  const { playerIdx, playerAudioQueue, playerRef, playerState } = get();
+  if (playerState === 'playing') {
+    console.log('player is still playing, skipping playing');
+    return;
+  }
+  if (playerIdx + 1 >= playerAudioQueue.length) {
+    console.log('next chunk is not queued, skipping playing');
+    return;
+  }
+  if (playerAudioQueue[playerIdx + 1].state !== 'audio') {
+    console.log('next chunk does not have audio, skipping playing');
+    return;
+  }
   set({
     playerIdx: playerIdx + 1,
     playerState: "playing",
@@ -190,10 +202,9 @@ const ensureListeners = (audio: HTMLAudioElement) => {
 
   audio.addEventListener("ended", () => {
     const { playerIdx, playerAudioQueue } = get();
+    set({ playerState: "idle" });
     if (playerIdx + 1 < playerAudioQueue.length) {
       playAudio(playerIdx + 1);
-    } else {
-      set({ playerState: "idle" });
     }
   });
 };
