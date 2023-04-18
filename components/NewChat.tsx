@@ -1,7 +1,7 @@
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useChatStore } from "@/stores/ChatStore";
-import { Container, rem, useMantineTheme } from "@mantine/core";
+import {  rem, useMantineTheme } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useMediaQuery } from "@mantine/hooks";
 import {
@@ -220,7 +220,7 @@ export default function NewChatCarousel() {
   const router = useRouter();
 
   return (
-    <Container py="xl">
+    <div style={{ paddingBlock: "1.5rem", paddingInline: "1.5rem" }}>
       <h2 style={{ textAlign: "center" }}> Choose a prompt...</h2>
       <CardsCarousel>
         {Object.keys(characters).map((key) => {
@@ -263,6 +263,6 @@ export default function NewChatCarousel() {
         <h2> Or start by simply typing below</h2>
         <IconArrowDown style={{ marginLeft: "0.5rem" }} />
       </div>
-    </Container>
+    </div>
   );
 }

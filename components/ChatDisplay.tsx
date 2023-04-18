@@ -26,7 +26,7 @@ const useStyles = createStyles((theme: MantineTheme) => ({
     },
   },
   chatContainer: {
-    overflowY: "scroll",
+    overflowY: "auto",
     flexGrow: 1,
     display: "flex",
     flexDirection: "column",
