@@ -220,49 +220,50 @@ export default function NewChatCarousel() {
   const router = useRouter();
 
   return (
-    <Container py="xl">
-      <h2 style={{ textAlign: "center" }}> Choose a prompt...</h2>
-      <CardsCarousel>
-        {Object.keys(characters).map((key) => {
-          // @ts-ignore
-          const character = characters[key];
-          return (
-            <BGCard
-              key={key}
-              title={key}
-              image={character.avatar.src}
-              description={character.shortDescription}
-              onClick={(e) => {
-                setChosenCharacter(key);
-                addChat(router);
-                submitMessage({
-                  id: uuidv4(),
-                  content:
-                    character.prompt ||
-                    scriptBase({
-                      character: key,
-                      characterDescription:
-                        character.characterDescription || "",
-                    }),
-                  role: "system",
-                });
-              }}
-            />
-          );
-        })}
-      </CardsCarousel>
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-        }}
-      >
-        <h2> Or start by simply typing below</h2>
-        <IconArrowDown style={{ marginLeft: "0.5rem" }} />
-      </div>
-    </Container>
+    <div>
+      <Container py="xl">
+        <h2 style={{ textAlign: "center" }}> Choose a prompt...</h2>
+        <CardsCarousel>
+          {Object.keys(characters).map((key) => {
+            // @ts-ignore
+            const character = characters[key];
+            return (
+              <BGCard
+                key={key}
+                title={key}
+                image={character.avatar.src}
+                description={character.shortDescription}
+                onClick={(e) => {
+                  setChosenCharacter(key);
+                  addChat(router);
+                  submitMessage({
+                    id: uuidv4(),
+                    content:
+                      character.prompt ||
+                      scriptBase({
+                        character: key,
+                        characterDescription: character.characterDescription || "",
+                      }),
+                    role: "system",
+                  });
+                }}
+              />
+            );
+          })}
+        </CardsCarousel>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+          }}
+        >
+          <h2> Or start by simply typing below</h2>
+          <IconArrowDown style={{ marginLeft: "0.5rem" }} />
+        </div>
+      </Container>
+    </div>
   );
 }
