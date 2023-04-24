@@ -11,6 +11,32 @@ import { debounce } from "lodash";
 const get = useChatStore.getState;
 const set = useChatStore.setState;
 
+const processCommand = (recognizedText: string) => {
+  return recognizedText.trim().toLowerCase().replace(/[^a-z ]/g, "");
+};
+
+class Command {
+  public cmd: string[];
+
+  constructor(cmd: string | string[]) {
+    this.cmd = (Array.isArray(cmd) ? cmd : [cmd]).map(c => processCommand(c));
+  }
+
+  match(recognizedText: string): boolean {
+    const text = processCommand(recognizedText);
+    for (const k of this.cmd) {
+      if (k === text) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+const sendNow = new Command(["over", "that's it", "send", "go"]);
+const stopListening = new Command(["go to sleep", "sleep", "take a nap"]);
+const newChat = new Command("new chat");
+
 export const startRecording = async (router: NextRouter) => {
   let recorder = get().recorder;
   console.log("start");
@@ -19,7 +45,7 @@ export const startRecording = async (router: NextRouter) => {
 
   let textUpdates: string[] = [];
 
-  const persistText = (text: string) => {
+  const persistText = () => {
     const effectiveInputValue = `${get().textInputValue} `;
     set((state) => ({
       textInputValue: effectiveInputValue,
@@ -43,19 +69,19 @@ export const startRecording = async (router: NextRouter) => {
   const updateText = (text: string, recognitionComplete: boolean) => {
     text = text.trim();
     set((state) => ({
-      textInputValue: `${textUpdates.join(" ")} ${text}`,
+      textInputValue: `${textUpdates.join(" ")} ${text}`.trim(),
     }));
     if (recognitionComplete) {
       textUpdates.push(text);
     }
   };
 
-  const updateAndEventuallyPersistText = (text: string, recognitionComplete: boolean) => {
+  const updateAndEventuallyPersistText = (text: string, recognitionComplete: boolean, force = false) => {
     updateText(text, recognitionComplete);
-    if (submitDebounce) {
-      debouncedPersistText(text);
+    if (submitDebounce && !force) {
+      debouncedPersistText();
     } else if (recognitionComplete) {
-      persistText(text);
+      persistText();
     }
   };
 
@@ -87,6 +113,7 @@ export const startRecording = async (router: NextRouter) => {
 
   recognizer.recognizing = (s, e) => {
     console.log(`RECOGNIZING: Text=${e.result.text}`);
+    if ([sendNow, stopListening, newChat].some(c => c.match(e.result.text))) return;
     updateAndEventuallyPersistText(e.result.text, false);
   };
 
@@ -94,7 +121,15 @@ export const startRecording = async (router: NextRouter) => {
     let resultText = e.result.text.trim();
     if (e.result.reason == speechsdk.ResultReason.RecognizedSpeech && resultText) {
       console.log(`RECOGNIZED: Text=${resultText}`);
-      updateAndEventuallyPersistText(resultText, true);
+      if (sendNow.match(resultText)) {
+        updateAndEventuallyPersistText("", true, true);
+      } else if (stopListening.match(resultText)) {
+        stopRecording(false);
+      } else if (newChat.match(resultText)) {
+        router.push("/");
+      } else {
+        updateAndEventuallyPersistText(resultText, true);
+      }
     } else if (e.result.reason == speechsdk.ResultReason.NoMatch) {
       console.log("NOMATCH: Speech could not be recognized.");
     }
