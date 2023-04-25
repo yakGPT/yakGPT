@@ -30,7 +30,7 @@ export default function ChatInput({ className }: { className?: string }) {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }, [activeChatId]);
 
   const doSubmit = () => {
     if (apiState === "loading") {
