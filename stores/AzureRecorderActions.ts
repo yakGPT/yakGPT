@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { notifications } from "@mantine/notifications";
 import { useChatStore } from "./ChatStore";
-import { submitMessage } from "./SubmitMessage";
+import { abortCurrentRequest, submitMessage } from "./SubmitMessage";
 
 import * as speechsdk from "microsoft-cognitiveservices-speech-sdk";
 import { addChat } from "./ChatActions";
@@ -34,6 +34,8 @@ class Command {
 }
 
 const sendNow = new Command(["over", "that's it", "send", "go"]);
+const scratchThat = new Command(["undo", "scratch that", "oops"]);
+const stopGenerating = new Command(["stop", "that's enough", "hush now"]);
 const stopListening = new Command(["go to sleep", "sleep", "take a nap"]);
 const newChat = new Command("new chat");
 
@@ -113,7 +115,7 @@ export const startRecording = async (router: NextRouter) => {
 
   recognizer.recognizing = (s, e) => {
     console.log(`RECOGNIZING: Text=${e.result.text}`);
-    if ([sendNow, stopListening, newChat].some(c => c.match(e.result.text))) return;
+    if ([sendNow, stopListening, newChat, stopGenerating, scratchThat].some(c => c.match(e.result.text))) return;
     updateAndEventuallyPersistText(e.result.text, false);
   };
 
@@ -123,10 +125,21 @@ export const startRecording = async (router: NextRouter) => {
       console.log(`RECOGNIZED: Text=${resultText}`);
       if (sendNow.match(resultText)) {
         updateAndEventuallyPersistText("", true, true);
+      } else if (scratchThat.match(resultText)) {
+        textUpdates.pop();
+        updateText("", false);
+      } else if (stopGenerating.match(resultText)) {
+        if (get().apiState === "loading") {
+          abortCurrentRequest();
+        }
+        updateText("", false);
       } else if (stopListening.match(resultText)) {
         stopRecording(false);
+        updateText("", false);
       } else if (newChat.match(resultText)) {
         router.push("/");
+        textUpdates = [];
+        updateText("", false);
       } else {
         updateAndEventuallyPersistText(resultText, true);
       }
