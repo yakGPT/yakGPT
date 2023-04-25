@@ -6,6 +6,7 @@ import {
   ColorSchemeProvider,
   MantineProvider,
 } from "@mantine/core";
+import "../styles/globals.css";
 import { Notifications } from "@mantine/notifications";
 import "highlight.js/styles/stackoverflow-dark.css";
 
@@ -60,10 +61,10 @@ export default function App(props: AppProps) {
           theme={{
             /** Put your mantine theme override here */
             colorScheme,
-            primaryColor: "bluu",
+            primaryColor: "blue",
             colors: {
               // https://smart-swatch.netlify.app/#5E6AD2
-              bluu: [
+              blue: [
                 "#e8edff",
                 "#c2c8f3",
                 "#9aa3e5",
@@ -104,6 +105,9 @@ export default function App(props: AppProps) {
                   theme.colorScheme === "dark"
                     ? theme.colors.dark[8]
                     : theme.colors.gray[0],
+              },
+               root:{
+                width:'100vw',
               },
             })}
           >

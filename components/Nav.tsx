@@ -1,5 +1,4 @@
 import { useChatStore } from "@/stores/ChatStore";
-import { v4 as uuidv4 } from "uuid";
 import {
   ActionIcon,
   Box,
@@ -294,7 +293,7 @@ export default function NavbarSimple() {
           className={classes.scrollbar}
           style={{
             overflowX: "hidden",
-            overflowY: "scroll",
+            overflowY: "auto",
           }}
         >
           {links}

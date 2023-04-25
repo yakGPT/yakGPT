@@ -1,4 +1,4 @@
-import { IncomingMessage } from "http";
+import type { IncomingMessage } from "http";
 import https from "https";
 import { Message, truncateMessages, countTokens } from "./Message";
 import { getModelInfo } from "./Model";
