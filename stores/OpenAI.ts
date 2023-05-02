@@ -196,7 +196,7 @@ export async function streamCompletion(
       );
 
       const completionTokensUsed = countTokens(
-        [...loadingMessages.map((m) => m.content), buffer].join("\n")
+        loadingMessages.map((m) => m.content).join("\n") + buffer
       );
 
       endCallback?.(promptTokensUsed, completionTokensUsed);
