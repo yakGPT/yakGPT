@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { IncomingMessage } from "http";
 import https from "https";
 import { Message, truncateMessages, countTokens } from "./Message";
@@ -118,7 +119,9 @@ export async function streamCompletion(
   apiKey: string,
   abortController?: AbortController,
   callback?: ((res: IncomingMessage) => void) | undefined,
-  endCallback?: ((tokensUsed: number) => void) | undefined,
+  endCallback?:
+    | ((promptTokensUsed: number, completionTokensUsed: number) => void)
+    | undefined,
   errorCallback?: ((res: IncomingMessage, body: string) => void) | undefined
 ) {
   const modelInfo = getModelInfo(params.model);
@@ -151,7 +154,7 @@ export async function streamCompletion(
     res.on("data", (chunk) => {
       if (abortController?.signal.aborted) {
         res.destroy();
-        endCallback?.(0);
+        endCallback?.(0, 0);
         return;
       }
 
@@ -184,11 +187,19 @@ export async function streamCompletion(
     });
 
     res.on("end", () => {
-      const tokensUsed =
-        countTokens(submitMessages.map((m) => m.content).join("\n")) +
-        countTokens(buffer);
+      const [loadingMessages, loadedMessages] = _.partition(
+        submitMessages,
+        "loading"
+      );
+      const promptTokensUsed = countTokens(
+        loadedMessages.map((m) => m.content).join("\n")
+      );
 
-      endCallback?.(tokensUsed);
+      const completionTokensUsed = countTokens(
+        loadingMessages.map((m) => m.content).join("\n") + buffer
+      );
+
+      endCallback?.(promptTokensUsed, completionTokensUsed);
     });
   };
 
