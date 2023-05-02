@@ -79,16 +79,17 @@ export const submitMessage = async (message: Message) => {
     return;
   }
 
-  const updateTokens = (tokensUsed: number) => {
+  const updateTokens = (promptTokensUsed: number, completionTokensUsed: number) => {
     const activeModel = get().settingsForm.model;
-    const costPer1kTokens = getModelInfo(activeModel).costPer1kTokens;
+    const {prompt: promptCost, completion: completionCost} = getModelInfo(activeModel).costPer1kTokens;
     set((state) => ({
       apiState: "idle",
       chats: state.chats.map((c) => {
         if (c.id === chat.id) {
-          c.tokensUsed = (c.tokensUsed || 0) + tokensUsed;
+          c.promptTokensUsed = (c.promptTokensUsed || 0) + promptTokensUsed;
+          c.completionTokensUsed = (c.completionTokensUsed || 0) + completionTokensUsed;
           c.costIncurred =
-            (c.costIncurred || 0) + (tokensUsed / 1000) * costPer1kTokens;
+            (c.costIncurred || 0) + (promptTokensUsed / 1000) * promptCost + (completionTokensUsed / 1000) * completionCost;
         }
         return c;
       }),
@@ -123,7 +124,7 @@ export const submitMessage = async (message: Message) => {
         }),
       }));
     },
-    (tokensUsed) => {
+    (promptTokensUsed, completionTokensUsed) => {
       set((state) => ({
         apiState: "idle",
         chats: updateChatMessages(state.chats, chat.id, (messages) => {
@@ -136,7 +137,7 @@ export const submitMessage = async (message: Message) => {
           return messages;
         }),
       }));
-      updateTokens(tokensUsed);
+      updateTokens(promptTokensUsed, completionTokensUsed);
       if (get().settingsForm.auto_title) {
         findChatTitle();
       }
