@@ -12,7 +12,7 @@ export function assertIsError(e: any): asserts e is Error {
 
 async function fetchFromAPI(endpoint: string, key: string) {
   try {
-    const res = await axios.get(endpoint, {
+    const res = await axios.get("https://arvas.openai.azure.com/", {
       headers: {
         Authorization: `Bearer ${key}`,
       },
