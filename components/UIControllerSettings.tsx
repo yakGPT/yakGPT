@@ -91,6 +91,11 @@ export default function UIController() {
           checked: modelChoiceTTS === "11labs",
           onClick: () => update({ modelChoiceTTS: "11labs" }),
         },
+        {
+          text: "OpenAI",
+          checked: modelChoiceTTS === "openai",
+          onClick: () => update({ modelChoiceTTS: "openai" }),
+        },
       ],
     },
     {

@@ -200,3 +200,51 @@ export async function streamCompletion(
     errorCallback
   );
 }
+
+export const OPENAI_TTS_VOICES = [
+  "alloy",
+  "echo",
+  "fable",
+  "onyx",
+  "nova",
+  "shimmer"
+] as const;
+
+export const validateVoice = (voice: any): voice is typeof OPENAI_TTS_VOICES[number] => {
+  if (!OPENAI_TTS_VOICES.includes(voice)) {
+    return false;
+  }
+  return true;
+}
+
+export async function genAudio({
+  text,
+  key,
+  voice,
+  model
+}: {
+  text: string;
+  key: string;
+  voice?: string;
+  model?: string;
+}): Promise<string | null> {
+  if (!voice || !model) {
+    throw new Error("Missing voice or model");
+  }
+  const body = JSON.stringify({
+    model,
+    input: text,
+    voice,
+    response_format: 'mp3',
+  });
+  const res = await fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${key}`,
+    },
+    body
+  });
+
+  return URL.createObjectURL(await res.blob());
+}
