@@ -55,6 +55,12 @@ const characters = {
     avatar: expert,
     prompt: `I want you to act as a a world-leading expert in whatever I'm about to ask you.`,
   },
+  Therapist: {
+    shortDescription: "Techniques to change your beliefs",
+    characterDescription:
+      "World-class therapist with a specialization in Cognitive Behavioral Therapy",
+    avatar: therapist,
+  },
   "Github Copilot": {
     shortDescription: "let me help you with code!",
     avatar: robot,
@@ -87,12 +93,6 @@ const characters = {
     The user works in an IDE called Visual Studio Code which has a concept for editors with open files, integrated unit test support, an output pane that shows the output of running the code as well as an integrated terminal. The active document is the source code the user is looking at right now.
     You can only give one reply for each conversation turn.
     You should always generate short suggestions for the next user turns that are relevant to the conversation and not offensive.`,
-  },
-  Therapist: {
-    shortDescription: "Techniques to change your beliefs",
-    characterDescription:
-      "World-class therapist with a specialization in Cognitive Behavioral Therapy",
-    avatar: therapist,
   },
   "Idea Generator": {
     shortDescription: "Brainstorming",
