@@ -23,6 +23,7 @@ import * as ElevenLabs from "@/stores/ElevenLabs";
 import { refreshModels, updateSettingsForm } from "@/stores/ChatActions";
 import * as Azure from "@/stores/AzureSDK";
 import { azureCandidateLanguages } from "./azureLangs";
+import { OPENAI_TTS_VOICES, validateVoice } from "@/stores/OpenAI";
 
 function getLanguages() {
   const languageCodes = ISO6391.getAllCodes();
@@ -297,6 +298,27 @@ export default function SettingsModal({ close }: { close: () => void }) {
                   />
                 </Accordion.Panel>
               </Accordion.Item>
+              <Accordion.Item value="openai-tts">
+                <Accordion.Control>Text to Speech</Accordion.Control>
+                <Accordion.Panel>
+                  <Select
+                    label="Model"
+                    value={form.values.tts_model_openai}
+                    onChange={(value) => {
+                      form.setFieldValue("tts_model_openai", value ?? "");
+                    }}
+                    data={["tts-1", "tts-1-hd"]}
+                  />
+                  <Select
+                    label="Voice"
+                    value={form.values.voice_id_openai}
+                    onChange={(value) => {
+                      form.setFieldValue("voice_id_openai", value ?? "");
+                    }}
+                    data={OPENAI_TTS_VOICES}
+                  />
+                </Accordion.Panel>
+              </Accordion.Item>
             </Accordion>
           </Tabs.Panel>
           <Tabs.Panel value="azure" pt="xs">
@@ -391,7 +413,9 @@ export default function SettingsModal({ close }: { close: () => void }) {
             >
               Reset
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit"
+              disabled={!!form.values.voice_id_openai && !validateVoice(form.values.voice_id_openai)}
+            >Save</Button>
           </Group>
         </Tabs>
       </form>

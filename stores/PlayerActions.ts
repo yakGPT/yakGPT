@@ -3,9 +3,12 @@ import { genAudio as genAudio11Labs } from "@/stores/ElevenLabs";
 
 import { useChatStore } from "./ChatStore";
 import { notifications } from "@mantine/notifications";
+import { genAudio as genAudioOpenAI } from "./OpenAI";
 
 const DEFAULT_AZURE_VOICE = "en-US-JaneNeural";
 const DEFAULT_11LABS_VOICE = "21m00Tcm4TlvDq8ikWAM";
+const DEFAULT_OPENAI_VOICE = "alloy";
+const DEFAULT_OPENAI_TTS_MODEL = "tts-1";
 
 const get = useChatStore.getState;
 const set = useChatStore.setState;
@@ -21,25 +24,38 @@ interface VarsShape {
   apiKeyRegion?: string | undefined;
   voiceId: string | undefined;
   voiceStyle?: string | undefined;
-  genAudio: typeof genAudioAzure | typeof genAudio11Labs;
+  model?: string | undefined;
+  genAudio: typeof genAudioAzure | typeof genAudio11Labs | typeof genAudioOpenAI;
 }
 
 const getVars = (): VarsShape => {
   const state = get();
 
-  return state.modelChoiceTTS === "azure"
-    ? {
+  switch (state.modelChoiceTTS) {
+    case 'azure':
+      return {
         apiKey: state.apiKeyAzure,
         apiKeyRegion: state.apiKeyAzureRegion,
         voiceId: state.settingsForm.voice_id_azure || DEFAULT_AZURE_VOICE,
         voiceStyle: state.settingsForm.spoken_language_style,
         genAudio: genAudioAzure,
-      }
-    : {
+      };
+    case '11labs':
+      return {
         apiKey: state.apiKey11Labs,
         voiceId: state.settingsForm.voice_id || DEFAULT_11LABS_VOICE,
         genAudio: genAudio11Labs,
       };
+    case 'openai':
+      return {
+        apiKey: state.apiKey,
+        voiceId: state.settingsForm.voice_id_openai || DEFAULT_OPENAI_VOICE,
+        model: state.settingsForm.tts_model_openai || DEFAULT_OPENAI_TTS_MODEL,
+        genAudio: genAudioOpenAI,
+      };
+    default:
+      throw new Error('invalid modelChoiceTTS');
+  }
 };
 
 function splitSentences(text: string | undefined) {
@@ -157,7 +173,7 @@ export const playAudio = (idx: number) => {
 };
 
 const fetchAudio = async (idx: number) => {
-  const { apiKey, apiKeyRegion, voiceId, voiceStyle, genAudio } = getVars();
+  const { apiKey, apiKeyRegion, voiceId, voiceStyle, genAudio, model } = getVars();
   const { playerAudioQueue } = get();
 
   const chunk = playerAudioQueue[idx];
@@ -177,6 +193,7 @@ const fetchAudio = async (idx: number) => {
       key: apiKey,
       region: apiKeyRegion,
       voice: voiceId,
+      model,
       style: voiceStyle,
     });
     if (audioURL) {
