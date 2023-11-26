@@ -29,6 +29,11 @@ const Code = ({
   const [isCopied, setIsCopied] = useState(false);
   const language = className?.replace("lang-", "");
 
+  // If no newlines or language assume it's inline code
+  if (!language || !children.includes("\n")) {
+    return <code>{children}</code>;
+  }
+
   const setCopied = () => {
     setIsCopied(true);
     setTimeout(() => {

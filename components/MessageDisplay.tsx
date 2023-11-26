@@ -124,7 +124,6 @@ export default ({ message, className }: Props) => {
       <div className={cx(classes.message, message.loading && classes.loading)}>
         <Markdown
           options={{
-            forceBlock: true,
             overrides: {
               code: {
                 component: Code,
