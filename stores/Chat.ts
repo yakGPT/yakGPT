@@ -6,6 +6,7 @@ export interface Chat {
   messages: Message[];
   chosenCharacter?: string | undefined;
   createdAt?: Date | undefined;
-  tokensUsed?: number;
+  promptTokensUsed?: number;
+  completionTokensUsed?: number;
   costIncurred?: number;
 }
