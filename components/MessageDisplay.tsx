@@ -1,12 +1,11 @@
 /* eslint-disable react/display-name */
 /* eslint-disable import/no-anonymous-default-export */
 import type { Message } from "@/stores/Message";
-import MarkdownIt from "markdown-it";
-import mdHighlight from "markdown-it-highlightjs";
-// @ts-ignore
-import mdCodeCopy from "./markdownCopy";
+
+import Markdown from "markdown-to-jsx";
 
 import { createStyles, keyframes, MantineTheme } from "@mantine/core";
+import Code from "./Code";
 
 interface Props {
   message: Message;
@@ -114,31 +113,28 @@ const useStyles = createStyles((theme: MantineTheme) => ({
 export default ({ message, className }: Props) => {
   const { classes, cx } = useStyles();
 
-  const htmlString = () => {
-    let md = MarkdownIt({
-      linkify: true,
-      breaks: true,
-    }).use(mdCodeCopy, {
-      iconStyle: "", // Clear default icon style
-      iconClass: classes.copyText, // Set a custom class for the icon element
-      buttonStyle:
-        "position: absolute; top: 7.5px; right: 6px; cursor: pointer; outline: none; border: none; background: none; color: #ffffff; background-color: #333;",
-      buttonClass: "",
-    });
-
-    if (message.role === "assistant") {
-      md = md.use(mdHighlight);
-    }
-
-    return md.render(message.content);
+  const renderMessage = () => {
+    const codeTags = (message.content.match(/```/g) || []).length;
+    // Add a closing code tag if there is an odd number of code tags
+    return codeTags % 2 === 0 ? message.content : message.content + "```";
   };
 
   return (
     <div className={cx(className, classes.container)}>
-      <div
-        className={cx(classes.message, message.loading && classes.loading)}
-        dangerouslySetInnerHTML={{ __html: htmlString() }}
-      ></div>
+      <div className={cx(classes.message, message.loading && classes.loading)}>
+        <Markdown
+          options={{
+            forceBlock: true,
+            overrides: {
+              code: {
+                component: Code,
+              },
+            },
+          }}
+        >
+          {renderMessage()}
+        </Markdown>
+      </div>
     </div>
   );
 };
