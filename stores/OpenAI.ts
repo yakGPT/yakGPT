@@ -162,7 +162,7 @@ export async function streamCompletion(
       const allMessages = chunk.toString().split("\n\n");
       for (const message of allMessages) {
         // Remove first 5 characters ("data:") of response
-        const cleaned = message.toString().slice(5);
+        const cleaned = message.toString().trim().slice(5);
 
         if (!cleaned || cleaned === " [DONE]") {
           return;
