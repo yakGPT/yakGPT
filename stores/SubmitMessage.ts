@@ -5,9 +5,35 @@ import { getChatById, updateChatMessages } from "./utils";
 import { notifications } from "@mantine/notifications";
 import { getModelInfo } from "./Model";
 import { useChatStore } from "./ChatStore";
+import { Chat } from "./Chat";
 
 const get = useChatStore.getState;
 const set = useChatStore.setState;
+
+const writeToMarkdown = (chat: Chat, role: string, message: string) => {
+  let state = get();
+
+  if (state.settingsForm.enable_local_storage !== true) {
+    return;
+  }
+
+  const dirPath = state.settingsForm.local_storage_dirpath;
+
+  const id = chat.createdAt;
+
+  fetch('/api/saveChatToFile', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      dirPath,
+      id,
+      role,
+      message
+    }),
+  });
+}
 
 export const abortCurrentRequest = () => {
   const currentAbortController = get().currentAbortController;
@@ -52,6 +78,7 @@ export const submitMessage = async (message: Message) => {
     chats: state.chats.map((c) => {
       if (c.id === chat.id) {
         c.messages.push(message);
+        writeToMarkdown(chat, message.role, message.content);
       }
       return c;
     }),
@@ -133,6 +160,7 @@ export const submitMessage = async (message: Message) => {
           );
           if (assistantMessage) {
             assistantMessage.loading = false;
+            writeToMarkdown(chat, 'Assistant', assistantMessage.content + '');
           }
           return messages;
         }),

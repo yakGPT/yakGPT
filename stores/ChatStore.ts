@@ -57,6 +57,9 @@ interface SettingsForm {
   spoken_language_code_azure: string;
   spoken_language_style: string;
   submit_debounce_ms: number;
+  // Storage
+  enable_local_storage: boolean;
+  local_storage_dirpath: string;
 }
 
 export const defaultSettings = {
@@ -86,6 +89,9 @@ export const defaultSettings = {
   spoken_language_code_azure: "en-US",
   spoken_language_style: "friendly",
   submit_debounce_ms: 0,
+  // Storage
+  enable_local_storage: false,
+  local_storage_dirpath: "/Users/me/Documents/YakGPT",
 };
 
 export interface ChatState {

@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import ISO6391 from "iso-639-1";
 import { useForm } from "@mantine/form";
-import { IconBraces, IconMicrophone, IconSettings } from "@tabler/icons-react";
+import { IconBraces, IconFolderDown, IconMicrophone, IconSettings } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import * as ElevenLabs from "@/stores/ElevenLabs";
 import { refreshModels, updateSettingsForm } from "@/stores/ChatActions";
@@ -138,6 +138,9 @@ export default function SettingsModal({ close }: { close: () => void }) {
             </Tabs.Tab>
             <Tabs.Tab value="11labs" icon={<IconBraces size={px("0.8rem")} />}>
               ElevenLabs
+            </Tabs.Tab>
+            <Tabs.Tab value="storage" icon={<IconFolderDown size={px("0.8rem")} />}>
+              Storage
             </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="openai" pt="xs">
@@ -403,6 +406,25 @@ export default function SettingsModal({ close }: { close: () => void }) {
                 value: voice.voice_id,
               }))}
             ></Select>
+          </Tabs.Panel>
+          <Tabs.Panel value="storage" pt="xs">
+            <Switch
+              checked={form.values.enable_local_storage}
+              label="Enable local file storage to automatically save chats as markdown files"
+              pt="xs" mb="md"
+              onChange={(event) => {
+                form.setFieldValue(
+                  "enable_local_storage",
+                  event.currentTarget.checked
+                );
+              }}
+            />
+            <TextInput
+              label="Local storage directory (absolute path)"
+              placeholder="Enter a directory path"
+              mt="md"
+              {...form.getInputProps("local_storage_dirpath")}
+            />
           </Tabs.Panel>
           <Group position="apart" mt="lg">
             <Button
